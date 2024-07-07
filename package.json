@@ -1,19 +1,19 @@
 {
   "name": "gpt-garmin-workout",
   "displayName": "gpt-garmin-workout",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "author": "Vitalii Elenhaupt",
-  "description": "",
+  "description": "Create Garmin Connect workouts using generative AI (openai/gpt-4o)",
   "type": "module",
   "license": "MIT",
   "keywords": [
     "chrome-extension",
-    "vanilla",
-    "vite",
-    "create-chrome-ext"
+    "chatgpt",
+    "garmin",
+    "workout"
   ],
   "engines": {
-    "node": ">=14.18.0"
+    "node": ">=20.12.0"
   },
   "scripts": {
     "dev": "vite",
