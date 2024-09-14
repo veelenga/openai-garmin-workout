@@ -1,12 +1,15 @@
-# gpt-garmin-workout
+# GPT Garmin Workout
+An chrome plugin that integrates OpenAI's GPT to generate Garmin workouts programmatically and sends them to Garmin Connect.
 
-> a chrome extension tools built with Vite + Vanilla, and Manifest v3
+## Description
+
+This project allows you to create complex Garmin workouts using natural language input processed by OpenAI's GPT.
+It supports features like targets, repeats, and nested steps, transforming workout descriptions into payloads compatible with Garmin's API.
 
 ## Installing
 
-1. Check if your `Node.js` version is >= **14**.
-2. Change or configurate the name of your extension on `src/manifest`.
-3. Run `npm install` to install the dependencies.
+1. Check if your `Node.js` version is >= **20**.
+2. Run `npm install` to install the dependencies.
 
 ## Developing
 
