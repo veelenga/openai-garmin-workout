@@ -1,3 +1,5 @@
+import { createWorkout, goToWorkout } from './garmin.js'
+
 const selectors = {
   generateWithAIButton: 'button#create-workout-with-ai',
   createWorkoutButton: 'button.create-workout',
@@ -16,10 +18,14 @@ document.addEventListener(events.newPromptFired, () => {
   const generateButton = document.querySelector(selectors.generateWithAIButton)
   generateButton.setAttribute('disabled', true)
 
-  chrome.runtime.sendMessage({ type: 'GENERATE', prompt: 'test' }, (response) => {
-    console.log(response)
-    generateButton.removeAttribute('disabled')
-  })
+  chrome.runtime.sendMessage({ type: 'GENERATE', prompt: 'test' }, async (response) =>
+    createWorkout(response.workout, (response) => {
+      console.log('Workout created:', response.workoutId)
+      goToWorkout(response.workoutId)
+    }).finally(() => {
+      generateButton.removeAttribute('disabled')
+    }),
+  )
 })
 
 function addGenerateButton(text = 'Generate with AI') {

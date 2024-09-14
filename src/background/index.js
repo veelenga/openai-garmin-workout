@@ -1,9 +1,9 @@
 console.log('background is running')
 
 const garminWorkoutExample = {
-  workoutName: 'Example Workout',
-  workoutDescription: 'This is an example workout',
-  workoutSteps: [
+  name: 'Example Workout',
+  type: 'running',
+  steps: [
     {
       stepName: 'Warm Up',
       stepDescription: 'Warm up for 10 minutes',
@@ -14,7 +14,7 @@ const garminWorkoutExample = {
       stepName: 'Run',
       stepDescription: 'Run for 30 minutes',
       stepDuration: 1800,
-      stepType: 'run',
+      stepType: 'interval',
     },
     {
       stepName: 'Cool Down',
@@ -27,6 +27,6 @@ const garminWorkoutExample = {
 
 chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   if (request.type === 'GENERATE') {
-    sendResponse({ type: 'GENERATE', result: garminWorkoutExample })
+    sendResponse({ type: 'GENERATE', workout: garminWorkoutExample })
   }
 })
