@@ -58,7 +58,7 @@ function addGenerateButton(text = 'Generate with AI') {
 function waitPageLoaded() {
   let MutationObserver = window.MutationObserver || window.WebKitMutationObserver
 
-  let observer = new MutationObserver(function (mutations, observer) {
+  let observer = new MutationObserver(function (mutations) {
     var evtName = null
     var evt = null
     let mutation = mutations.pop()
