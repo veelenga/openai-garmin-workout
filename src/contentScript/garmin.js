@@ -20,8 +20,21 @@ const stepTypeMapping = {
   repeat: { stepTypeId: 6, stepTypeKey: 'repeat', displayOrder: 6 },
 }
 
+const targetTypeMapping = {
+  'no target': { workoutTargetTypeId: 1, workoutTargetTypeKey: 'no.target', displayOrder: 1 },
+  'heart rate': {
+    workoutTargetTypeId: 3,
+    workoutTargetTypeKey: 'heart.rate.zone',
+    displayOrder: 3,
+  },
+  speed: { workoutTargetTypeId: 2, workoutTargetTypeKey: 'speed.zone', displayOrder: 2 },
+  cadence: { workoutTargetTypeId: 4, workoutTargetTypeKey: 'cadence.zone', displayOrder: 4 },
+  power: { workoutTargetTypeId: 5, workoutTargetTypeKey: 'power.zone', displayOrder: 5 },
+  pace: { workoutTargetTypeId: 6, workoutTargetTypeKey: 'pace.zone', displayOrder: 6 },
+}
+
 function makePayload(workout) {
-  // determine sportType
+  // Determine sportType
   const sportType = sportTypeMapping[workout.type.toLowerCase()]
 
   // Initialize payload
@@ -46,34 +59,107 @@ function makePayload(workout) {
     workoutSteps: [],
   }
 
-  // Mapping for end conditions (assuming time-based steps)
-  const endConditionTime = {
-    conditionTypeId: 2,
-    conditionTypeKey: 'time',
-    displayOrder: 2,
-    displayable: true,
-  }
-
   let stepOrder = 1
 
-  // Build workout steps
-  workout.steps.forEach((step) => {
-    const stepType = stepTypeMapping[step.stepType.toLowerCase()] || stepTypeMapping['run']
+  // Function to process steps recursively
+  function processSteps(stepsArray) {
+    const steps = []
 
-    const workoutStep = {
-      stepId: stepOrder,
-      stepOrder: stepOrder,
-      stepType: stepType,
-      type: 'ExecutableStepDTO',
-      endCondition: endConditionTime,
-      endConditionValue: step.stepDuration, // Duration in seconds
-      description: step.stepDescription || '',
-      stepAudioNote: null,
-    }
+    stepsArray.forEach((step) => {
+      const stepTypeKey = step.stepType.toLowerCase()
 
-    segment.workoutSteps.push(workoutStep)
-    stepOrder += 1
-  })
+      if (stepTypeKey === 'repeat') {
+        // Handle repeat steps
+        const repeatStep = {
+          stepId: stepOrder,
+          stepOrder: stepOrder,
+          stepType: stepTypeMapping['repeat'],
+          numberOfIterations: step.numberOfIterations || 1,
+          smartRepeat: false,
+          endCondition: {
+            conditionTypeId: 7,
+            conditionTypeKey: 'iterations',
+            displayOrder: 7,
+            displayable: false,
+          },
+          type: 'RepeatGroupDTO',
+        }
+
+        stepOrder += 1
+
+        // Recursively process child steps
+        repeatStep.workoutSteps = processSteps(step.steps)
+
+        steps.push(repeatStep)
+      } else {
+        // Handle regular steps
+        const stepType = stepTypeMapping[stepTypeKey] || stepTypeMapping['interval']
+
+        const workoutStep = {
+          stepId: stepOrder,
+          stepOrder: stepOrder,
+          stepType: stepType,
+          type: 'ExecutableStepDTO',
+          endCondition: {
+            conditionTypeId: 2,
+            conditionTypeKey: 'time',
+            displayOrder: 2,
+            displayable: true,
+          },
+          endConditionValue: step.stepDuration, // Duration in seconds
+          description: step.stepDescription || '',
+          stepAudioNote: null,
+        }
+
+        // Handle targets if any
+        if (step.target) {
+          const targetTypeKey = step.target.type.toLowerCase()
+          const targetType = targetTypeMapping[targetTypeKey] || targetTypeMapping['no target']
+
+          workoutStep.targetType = targetType
+
+          if (step.target.value) {
+            let targetValueOne = null
+            let targetValueTwo = null
+
+            if (Array.isArray(step.target.value)) {
+              let [minValue, maxValue] = step.target.value
+
+              // Perform unit conversions if necessary
+              if (targetTypeKey === 'pace') {
+                // Convert pace from min/km to m/s
+                minValue = 1000 / (minValue * 60) // minValue in m/s
+                maxValue = 1000 / (maxValue * 60) // maxValue in m/s
+              }
+
+              targetValueOne = minValue
+              targetValueTwo = maxValue
+            } else {
+              // Single value targets
+              targetValueOne = step.target.value
+            }
+
+            workoutStep.targetValueOne = targetValueOne
+            workoutStep.targetValueTwo = targetValueTwo
+          }
+
+          // Set targetValueUnit to null as per previous discussion
+          workoutStep.targetValueUnit = null
+        } else {
+          // If no target, set targetType to 'no.target'
+          workoutStep.targetType = targetTypeMapping['no target']
+        }
+
+        steps.push(workoutStep)
+        stepOrder += 1
+      }
+    })
+
+    return steps
+  }
+
+  // Process the top-level steps
+  segment.workoutSteps = processSteps(workout.steps)
 
   // Add the segment to payload
   payload.workoutSegments.push(segment)
