@@ -1,97 +1,82 @@
 const selectors = {
-  addStepButton: '[type=button][aria-label="Add a Step"]',
-  deleteStepButton: '[type=button][aria-label="Delete Step"]',
-  generateButton: '[type=button][aria-label="Generate with AI"]',
-
-  popupDeleteButton: '[type=button][aria-label="Delete"]',
+  generateWithAIButton: 'button#create-workout-with-ai',
+  createWorkoutButton: 'button.create-workout',
 }
 
 const events = {
-  addStepButtonReady: 'GarminAddStepButtonReady',
-  newPromptFired: 'GarminNewPromptAdded',
-  deleteStepPopupFired: 'GarminDeleteStepPopupFired',
+  indexPageReady: 'GarminWorkoutIndexPageReady',
+  newPromptFired: 'NewPromptFired',
 }
 
-document.addEventListener(events.addStepButtonReady, () => {
+document.addEventListener(events.indexPageReady, () => {
   addGenerateButton()
 })
 
-document.addEventListener(events.newPromptFired, (event) => {
-  const generateButton = document.querySelector(selectors.generateButton)
-  generateButton.disabled = true
+document.addEventListener(events.newPromptFired, () => {
+  const generateButton = document.querySelector(selectors.generateWithAIButton)
+  generateButton.setAttribute('disabled', true)
 
-  chrome.runtime.sendMessage({ type: 'generate', prompt: event.detail }, (response) => {
-    deleteSteps()
-    generateButton.disabled = false
+  chrome.runtime.sendMessage({ type: 'GENERATE', prompt: 'test' }, (response) => {
+    console.log(response)
+    generateButton.removeAttribute('disabled')
   })
 })
-
-document.addEventListener(events.deleteStepPopupFired, ({ detail: { target } }) => {
-  target.click()
-  debugger
-  deleteSteps()
-})
-
-function deleteSteps() {
-  const deleteStepButtons = document.querySelectorAll(selectors.deleteStepButton)
-  deleteStepButtons.forEach((button) => {
-    button.click()
-  })
-}
 
 function addGenerateButton(text = 'Generate with AI') {
-  const addStepButton = document.querySelector(selectors.addStepButton)
-  if (!addStepButton) {
+  const createWorkoutButton = document.querySelector(selectors.createWorkoutButton)
+  if (!createWorkoutButton) {
     return
   }
 
-  if (document.querySelector(selectors.generateButton)) {
+  if (document.querySelector(selectors.generateWithAIButton)) {
     return
   }
 
-  const newButton = addStepButton.cloneNode(true)
-  newButton.addEventListener('click', () => {
+  const newButton = createWorkoutButton.cloneNode(true)
+  newButton.addEventListener('click', (event) => {
+    event.preventDefault()
     const result = prompt('Describe your workout:', '10m warmup, 5x(5m 300wt, 5m 120w)')
     if (result) {
-      document.dispatchEvent(new Event(events.newPromptFired, { detail: result }))
+      document.dispatchEvent(new CustomEvent(events.newPromptFired, { detail: result }))
     }
   })
-  newButton.style.backgroundColor = 'green'
+  newButton.setAttribute('id', 'create-workout-with-ai')
+  newButton.setAttribute('class', 'btn btn-form')
+  newButton.setAttribute('aria-label', text)
+  newButton.removeAttribute('disabled')
   newButton.textContent = text
-  newButton.ariaLabel = text
-  addStepButton.parentElement.appendChild(newButton)
+  newButton.style.backgroundColor = 'green'
+  createWorkoutButton.parentElement.appendChild(newButton)
 }
 
 function waitPageLoaded() {
   let MutationObserver = window.MutationObserver || window.WebKitMutationObserver
 
-  let observer = new MutationObserver(function (mutations) {
-    if (document.getElementsByClassName('content page workoutPage').length === 0) {
-      return
+  let observer = new MutationObserver(function (mutations, observer) {
+    var evtName = null
+    var evt = null
+    let mutation = mutations.pop()
+    let target = mutation.target
+    let isWorkoutIndexPage =
+      target.classList.contains('body-workouts-index') &&
+      mutation.oldValue.indexOf('body-workouts-index') !== -1
+
+    if (isWorkoutIndexPage) {
+      evtName = events.indexPageReady
+      console.debug('====> Workout index page is ready')
     }
 
-    // const mutation = mutations.find((mutation) => mutation.target.matches(selectors.addStepButton))
-
-    // if (mutation) {
-    //   document.dispatchEvent(new Event(events.addStepButtonReady))
-    // }
-    mutations.forEach((mutation) => {
-      if (mutation.target.matches(selectors.addStepButton)) {
-        document.dispatchEvent(new Event(events.addStepButtonReady))
-      }
-
-      console.log(mutation)
-      if (mutation.target.matches(selectors.popupDeleteButton)) {
-        document.dispatchEvent(
-          new CustomEvent(events.deleteStepPopupFired, { detail: { target: mutation.target } }),
-        )
-      }
-    })
+    if (evtName) {
+      evt = new Event(evtName)
+      document.dispatchEvent(evt)
+    }
   })
 
   observer.observe(document.getElementsByTagName('body')[0], {
-    subtree: true,
-    childList: true,
+    subtree: false,
+    attributes: true,
+    attributeOldValue: true,
+    attributeFilter: ['class'],
   })
 }
 
