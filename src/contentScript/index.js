@@ -1,4 +1,4 @@
-import { createWorkout, goToWorkout } from './garmin.js'
+import { createWorkout, goToWorkout } from '../lib/garmin.js'
 
 const selectors = {
   generateWithAIButton: 'button#create-workout-with-ai',
