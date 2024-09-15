@@ -14,18 +14,20 @@ document.addEventListener(events.indexPageReady, () => {
   addGenerateButton()
 })
 
-document.addEventListener(events.newPromptFired, () => {
+document.addEventListener(events.newPromptFired, (event) => {
   const generateButton = document.querySelector(selectors.generateWithAIButton)
   generateButton.setAttribute('disabled', true)
 
-  chrome.runtime.sendMessage({ type: 'GENERATE', prompt: 'test' }, async (response) =>
-    createWorkout(response.workout, (response) => {
-      console.log('Workout created:', response.workoutId)
-      goToWorkout(response.workoutId)
-    }).finally(() => {
-      generateButton.removeAttribute('disabled')
-    }),
-  )
+  chrome.runtime.sendMessage({ type: 'GENERATE', prompt: event.detail }, async (response) => {
+    if (response && response.type === 'GENERATE') {
+      return createWorkout(response.workout, (response) => {
+        console.log('Workout created:', response.workoutId)
+        goToWorkout(response.workoutId)
+      }).finally(() => {
+        generateButton.removeAttribute('disabled')
+      })
+    }
+  })
 })
 
 function addGenerateButton(text = 'Generate with AI') {

@@ -101,8 +101,7 @@ describe('generateWorkout', () => {
     }
 
     nock('https://api.openai.com').post('/v1/chat/completions').reply(200, mockedResponse)
-    const openaiClient = new OpenAI({ apiKey: 'test-api-key' })
-    const workout = await generateWorkout(description, openaiClient)
+    const workout = await generateWorkout('test-api-key', description)
 
     expect(workout).toEqual({
       name: 'Long Run',
@@ -179,11 +178,7 @@ describe('generateWorkout', () => {
         },
       })
 
-    const openaiClient = new OpenAI({
-      apiKey: 'test-api-key',
-    })
-
-    await expect(generateWorkout(description, openaiClient)).rejects.toThrow()
+    await expect(generateWorkout('test-api-key', description)).rejects.toThrow()
   })
 
   test('throws error when response is invalid JSON', async () => {
@@ -208,11 +203,7 @@ describe('generateWorkout', () => {
 
     nock('https://api.openai.com').post('/v1/chat/completions').reply(200, mockedResponse)
 
-    const openaiClient = new OpenAI({
-      apiKey: 'test-api-key',
-    })
-
-    await expect(generateWorkout(description, openaiClient)).rejects.toThrow(
+    await expect(generateWorkout('test-api-key', description)).rejects.toThrow(
       'Invalid JSON response from OpenAI.',
     )
   })

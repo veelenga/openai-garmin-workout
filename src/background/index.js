@@ -1,5 +1,3 @@
-console.log('background is running')
-
 // const garminWorkoutExample = {
 //   name: 'Example Workout',
 //   type: 'running',
@@ -117,8 +115,22 @@ const garminWorkoutWithRepeats = {
   ],
 }
 
+import { generateWorkout } from '../lib/openai.js'
+
+async function getOpenAIKey() {
+  return new Promise((resolve, reject) => {
+    chrome.storage.local.get('openaiApiKey', (result) =>
+      result.openaiApiKey ? resolve(result.openaiApiKey) : reject(new Error('API Key not found')),
+    )
+  })
+}
+
 chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   if (request.type === 'GENERATE') {
-    sendResponse({ type: 'GENERATE', workout: garminWorkoutWithRepeats })
+    getOpenAIKey()
+      .then((openaiApiKey) => generateWorkout(openaiApiKey, request.prompt))
+      .then((workout) => sendResponse({ type: 'GENERATE', workout }))
+
+    return true
   }
 })

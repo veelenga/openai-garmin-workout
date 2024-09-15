@@ -6,12 +6,12 @@ import OpenAI from 'openai'
  * @param {OpenAI} [openaiClient] - Optional OpenAI client for testing.
  * @returns {Promise<Object>} - The generated workout object.
  */
-export async function generateWorkout(description, openaiClient) {
+export async function generateWorkout(apiKey, description) {
   const prompt = createPrompt(description)
-  const client = openaiClient || new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
+  const client = new OpenAI({ apiKey })
 
   const response = await client.chat.completions.create({
-    model: 'gpt-4',
+    model: 'gpt-3.5-turbo',
     messages: [{ role: 'user', content: prompt }],
     max_tokens: 1000,
     temperature: 0.7,
