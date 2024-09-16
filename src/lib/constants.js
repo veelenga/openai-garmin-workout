@@ -13,6 +13,11 @@ export const SELECTORS = {
     createWorkoutButton: 'button.create-workout',
   },
   plugin: {
-    generateWithAIButton: 'button#create-workout-with-ai',
+    generateWithAIButton: '#create-workout-with-ai',
+    spinner: '.ggw-spinner',
+    modal: '#ggw-workout-modal',
+    workoutPrompt: '#workout-prompt',
+    submitPrompt: '#submit-prompt',
+    examplePrompt: '.ggw-example-prompt',
   },
 }

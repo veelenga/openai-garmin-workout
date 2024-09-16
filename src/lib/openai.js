@@ -69,8 +69,7 @@ function parseWorkoutResponse(responseText) {
   const trimmedText = responseText.trim()
 
   try {
-    const workout = JSON.parse(trimmedText)
-    return workout
+    return JSON.parse(trimmedText)
   } catch {
     throw new Error('Invalid JSON response from OpenAI.')
   }

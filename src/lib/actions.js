@@ -25,14 +25,14 @@ export function requestWorkout(prompt) {
 function setButtonLoading(button, isLoading) {
   if (isLoading) {
     button.setAttribute('disabled', true)
-    if (!button.querySelector('.btn-spinner')) {
+    if (!button.querySelector(SELECTORS.plugin.spinner)) {
       const spinner = document.createElement('span')
-      spinner.classList.add('btn-spinner')
+      spinner.classList.add(SELECTORS.plugin.spinner.slice(1).replace('.', ''))
       button.appendChild(spinner)
     }
   } else {
     button.removeAttribute('disabled')
-    const spinner = button.querySelector('.btn-spinner')
+    const spinner = button.querySelector(SELECTORS.plugin.spinner)
     if (spinner) spinner.remove()
   }
 }
