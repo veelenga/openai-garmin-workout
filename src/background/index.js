@@ -1,120 +1,4 @@
-// const garminWorkoutExample = {
-//   name: 'Example Workout',
-//   type: 'running',
-//   steps: [
-//     {
-//       stepName: 'Warm Up',
-//       stepDescription: 'Warm up for 10 minutes',
-//       stepDuration: 600,
-//       stepType: 'warmup',
-//       target: {
-//         type: 'heart rate',
-//         value: [120, 140],
-//         unit: 'bpm',
-//       },
-//     },
-//     {
-//       stepName: 'Run Interval',
-//       stepDescription: 'Run at target pace',
-//       stepDuration: 1800,
-//       stepType: 'interval',
-//       target: {
-//         type: 'pace',
-//         value: [4.5, 5.5],
-//         unit: 'min_per_km',
-//       },
-//     },
-//     {
-//       stepName: 'Cool Down',
-//       stepDescription: 'Cool down for 10 minutes',
-//       stepDuration: 600,
-//       stepType: 'cooldown',
-//       target: {
-//         type: 'no target',
-//       },
-//     },
-//   ],
-// }
-
-// const cyclingWorkoutExample = {
-//   name: 'Cycling Workout',
-//   type: 'cycling',
-//   steps: [
-//     {
-//       stepName: 'Warm Up',
-//       stepDescription: 'Warm up for 15 minutes',
-//       stepDuration: 900,
-//       stepType: 'warmup',
-//       target: {
-//         type: 'power',
-//         value: [100, 150], // Target power range in watts
-//         unit: 'watts',
-//       },
-//     },
-//     {
-//       stepName: 'Main Interval',
-//       stepDescription: 'Ride at target power',
-//       stepDuration: 1800,
-//       stepType: 'interval',
-//       target: {
-//         type: 'power',
-//         value: [200, 250],
-//         unit: 'watts',
-//       },
-//     },
-//     {
-//       stepName: 'Cool Down',
-//       stepDescription: 'Cool down for 10 minutes',
-//       stepDuration: 600,
-//       stepType: 'cooldown',
-//       target: {
-//         type: 'no target',
-//       },
-//     },
-//   ],
-// }
-
-const garminWorkoutWithRepeats = {
-  name: 'Interval Workout with Repeats',
-  type: 'running',
-  steps: [
-    {
-      stepName: 'Warm Up',
-      stepDescription: 'Warm up for 10 minutes',
-      stepDuration: 600,
-      stepType: 'warmup',
-    },
-    {
-      stepType: 'repeat',
-      numberOfIterations: 3,
-      steps: [
-        {
-          stepName: 'Run Hard',
-          stepDescription: 'Run hard for 5 minutes',
-          stepDuration: 300,
-          stepType: 'interval',
-          target: {
-            type: 'pace',
-            value: [4, 5], // min/km
-          },
-        },
-        {
-          stepName: 'Recover',
-          stepDescription: 'Recover for 2 minutes',
-          stepDuration: 120,
-          stepType: 'recovery',
-        },
-      ],
-    },
-    {
-      stepName: 'Cool Down',
-      stepDescription: 'Cool down for 10 minutes',
-      stepDuration: 600,
-      stepType: 'cooldown',
-    },
-  ],
-}
-
+import { RUNTIME_MESSAGES } from '../lib/constants.js'
 import { generateWorkout } from '../lib/openai.js'
 
 async function getOpenAIKey() {
@@ -126,14 +10,16 @@ async function getOpenAIKey() {
 }
 
 chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
-  if (request.type === 'GENERATE') {
+  if (request.type === RUNTIME_MESSAGES.generateWorkout) {
     console.log('Generating workout...')
 
     getOpenAIKey()
       .then((openaiApiKey) => generateWorkout(openaiApiKey, request.prompt))
-      .then((workout) => sendResponse({ type: 'GENERATE', workout }))
-      .catch((error) => sendResponse({ type: 'ERROR', message: error.message }))
+      .then((workout) => sendResponse({ type: RUNTIME_MESSAGES.generateWorkout, workout }))
+      .catch((error) => sendResponse({ type: RUNTIME_MESSAGES.error, error: error.message }))
 
     return true
   }
+
+  console.error('Unknown message type:', request.type)
 })

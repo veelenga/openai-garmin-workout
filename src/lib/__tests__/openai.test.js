@@ -1,6 +1,5 @@
 import nock from 'nock'
-import OpenAI from 'openai'
-import { generateWorkout } from '../openai.js'
+import { generateWorkout } from '../openai'
 
 describe('generateWorkout', () => {
   afterEach(() => {

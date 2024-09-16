@@ -1,4 +1,4 @@
-import { sportTypeMapping, makePayload } from '../garmin.js'
+import { sportTypeMapping, makePayload } from '../garmin'
 
 describe('makePayload Function', () => {
   test('Creates payload for a simple running workout without repeats', () => {

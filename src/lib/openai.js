@@ -54,11 +54,13 @@ Requirements:
 }
 
 Constraints:
+- Be creative on the workout name. It should be understandable and describe the workout. Avoid sport type in the name.
 - The "type" should be one of the supported sports.
 - "stepDuration" should be in seconds.
 - For pace targets, convert times like "4:30 per km" to minutes per km as a decimal (e.g., 4.5).
 - Use "no target" if no specific target is given.
 - For repeats, include "numberOfIterations" and "steps".
+- Use segment repeats where possible to avoid repeating steps.
 - The JSON must be parsable and not include additional explanations.
 `
 }
