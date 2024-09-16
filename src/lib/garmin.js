@@ -21,14 +21,14 @@ export const stepTypeMapping = {
 
 export const targetTypeMapping = {
   'no target': { workoutTargetTypeId: 1, workoutTargetTypeKey: 'no.target', displayOrder: 1 },
-  speed: { workoutTargetTypeId: 2, workoutTargetTypeKey: 'speed.zone', displayOrder: 2 },
+  power: { workoutTargetTypeId: 2, workoutTargetTypeKey: 'power.zone', displayOrder: 2 },
+  cadence: { workoutTargetTypeId: 3, workoutTargetTypeKey: 'cadence.zone', displayOrder: 3 },
   'heart rate': {
-    workoutTargetTypeId: 3,
+    workoutTargetTypeId: 4,
     workoutTargetTypeKey: 'heart.rate.zone',
-    displayOrder: 3,
+    displayOrder: 4,
   },
-  cadence: { workoutTargetTypeId: 4, workoutTargetTypeKey: 'cadence.zone', displayOrder: 4 },
-  power: { workoutTargetTypeId: 5, workoutTargetTypeKey: 'power.zone', displayOrder: 5 },
+  speed: { workoutTargetTypeId: 5, workoutTargetTypeKey: 'speed.zone', displayOrder: 5 },
   pace: { workoutTargetTypeId: 6, workoutTargetTypeKey: 'pace.zone', displayOrder: 6 },
 }
 

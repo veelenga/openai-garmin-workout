@@ -9,7 +9,7 @@
 //       stepType: 'warmup',
 //       target: {
 //         type: 'heart rate',
-//         value: [120, 140], // Target heart rate range in bpm
+//         value: [120, 140],
 //         unit: 'bpm',
 //       },
 //     },
@@ -20,7 +20,7 @@
 //       stepType: 'interval',
 //       target: {
 //         type: 'pace',
-//         value: [4.5, 5.5], // Target pace range in min/km
+//         value: [4.5, 5.5],
 //         unit: 'min_per_km',
 //       },
 //     },
