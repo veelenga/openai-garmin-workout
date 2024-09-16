@@ -1,3 +1,4 @@
+import './index.css'
 import { createWorkout, goToWorkout } from '../lib/garmin.js'
 
 const selectors = {
@@ -14,18 +15,35 @@ document.addEventListener(events.indexPageReady, () => {
   addGenerateButton()
 })
 
+function setLoading(button, isLoading) {
+  if (isLoading) {
+    button.setAttribute('disabled', true)
+    if (!button.querySelector('.btn-spinner')) {
+      const spinner = document.createElement('span')
+      spinner.classList.add('btn-spinner')
+      button.appendChild(spinner)
+    }
+  } else {
+    button.removeAttribute('disabled')
+    const spinner = button.querySelector('.btn-spinner')
+    if (spinner) spinner.remove()
+  }
+}
+
 document.addEventListener(events.newPromptFired, (event) => {
   const generateButton = document.querySelector(selectors.generateWithAIButton)
-  generateButton.setAttribute('disabled', true)
+  setLoading(generateButton, true)
 
   chrome.runtime.sendMessage({ type: 'GENERATE', prompt: event.detail }, async (response) => {
     if (response && response.type === 'GENERATE') {
       return createWorkout(response.workout, (response) => {
         console.log('Workout created:', response.workoutId)
         goToWorkout(response.workoutId)
-      }).finally(() => {
-        generateButton.removeAttribute('disabled')
-      })
+      }).finally(() => setLoading(generateButton, false))
+    }
+    if (response && response.type === 'ERROR') {
+      alert(response.message)
+      setLoading(generateButton, false)
     }
   })
 })

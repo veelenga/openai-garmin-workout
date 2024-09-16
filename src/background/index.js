@@ -127,9 +127,12 @@ async function getOpenAIKey() {
 
 chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   if (request.type === 'GENERATE') {
+    console.log('Generating workout...')
+
     getOpenAIKey()
       .then((openaiApiKey) => generateWorkout(openaiApiKey, request.prompt))
       .then((workout) => sendResponse({ type: 'GENERATE', workout }))
+      .catch((error) => sendResponse({ type: 'ERROR', message: error.message }))
 
     return true
   }
