@@ -1,7 +1,7 @@
 import { sportTypeMapping, makePayload } from '../garmin'
 
 describe('makePayload Function', () => {
-  test('Creates payload for a simple running workout without repeats', () => {
+  test('creates payload for a simple running workout without repeats', () => {
     const workout = {
       name: 'Simple Running Workout',
       type: 'running',
@@ -37,12 +37,51 @@ describe('makePayload Function', () => {
     expect(payload.workoutName).toBe('Simple Running Workout')
     expect(payload.sportType).toEqual(sportTypeMapping.running)
     expect(payload.workoutSegments[0].workoutSteps.length).toBe(3)
-    expect(payload.workoutSegments[0].workoutSteps[1].targetType.workoutTargetTypeKey).toBe(
-      'pace.zone',
-    )
+
+    const run = payload.workoutSegments[0].workoutSteps[1]
+    expect(run.targetType).toEqual({
+      displayOrder: 6,
+      workoutTargetTypeId: 6,
+      workoutTargetTypeKey: 'pace.zone',
+    })
+    expect(run.targetValueOne).toBe(3.3333333333333335)
+    expect(run.targetValueTwo).toBe(2.7777777777777777)
   })
 
-  test('Creates payload for a cycling workout with power target', () => {
+  test('creates payload for a single target value', () => {
+    const workout = {
+      name: 'Simple Running Workout',
+      type: 'running',
+      steps: [
+        {
+          stepName: 'Run',
+          stepDescription: 'Run at a steady pace',
+          stepDuration: 1800,
+          stepType: 'interval',
+          target: {
+            type: 'pace',
+            value: 6.5,
+            unit: 'min_per_km',
+          },
+        },
+      ],
+    }
+
+    const payload = makePayload(workout)
+
+    expect(payload.workoutSegments[0].workoutSteps.length).toBe(1)
+
+    const run = payload.workoutSegments[0].workoutSteps[0]
+    expect(run.targetType).toEqual({
+      displayOrder: 6,
+      workoutTargetTypeId: 6,
+      workoutTargetTypeKey: 'pace.zone',
+    })
+    expect(run.targetValueOne).toBe(2.6315789473684212)
+    expect(run.targetValueTwo).toBe(2.5)
+  })
+
+  test('creates payload for a cycling workout with power target', () => {
     const workout = {
       name: 'Cycling Power Workout',
       type: 'cycling',
@@ -100,10 +139,17 @@ describe('makePayload Function', () => {
     expect(repeatStep.numberOfIterations).toBe(5)
     expect(repeatStep.workoutSteps.length).toBe(2)
     // Check target type in interval
-    expect(repeatStep.workoutSteps[0].targetType.workoutTargetTypeKey).toBe('power.zone')
+    const intervalStep = repeatStep.workoutSteps[0]
+    expect(intervalStep.targetType).toEqual({
+      displayOrder: 2,
+      workoutTargetTypeId: 2,
+      workoutTargetTypeKey: 'power.zone',
+    })
+    expect(intervalStep.targetValueOne).toBe(250)
+    expect(intervalStep.targetValueTwo).toBe(300)
   })
 
-  test('Handles unknown sport type gracefully', () => {
+  test('handles unknown sport type gracefully', () => {
     const workout = {
       name: 'Unknown Sport Workout',
       type: 'unknown_sport',
@@ -115,7 +161,7 @@ describe('makePayload Function', () => {
     }).toThrow('Unsupported sport type: unknown_sport')
   })
 
-  test('Handles missing step duration', () => {
+  test('handles missing step duration', () => {
     const workout = {
       name: 'Workout with Missing Duration',
       type: 'running',
@@ -128,12 +174,10 @@ describe('makePayload Function', () => {
       ],
     }
 
-    expect(() => {
-      makePayload(workout)
-    }).toThrow()
+    expect(() => makePayload(workout)).toThrow()
   })
 
-  test('Creates payload for a workout with nested repeats', () => {
+  test('creates payload for a workout with nested repeats', () => {
     const workout = {
       name: 'Nested Repeats Workout',
       type: 'running',
@@ -199,7 +243,7 @@ describe('makePayload Function', () => {
     expect(repeatStep.workoutSteps[0].numberOfIterations).toBe(3)
   })
 
-  test('Creates payload for a strength workout with custom steps', () => {
+  test('creates payload for a strength workout with custom steps', () => {
     const workout = {
       name: 'Strength Training',
       type: 'strength',
@@ -259,7 +303,7 @@ describe('makePayload Function', () => {
     expect(circuitStep.workoutSteps.length).toBe(3)
   })
 
-  test('Handles workout with different target types', () => {
+  test('handles workout with different target types', () => {
     const workout = {
       name: 'Mixed Targets Workout',
       type: 'running',
@@ -310,7 +354,7 @@ describe('makePayload Function', () => {
     expect(coolDownStep.targetType.workoutTargetTypeKey).toBe('speed.zone')
   })
 
-  test('Handles invalid target type gracefully', () => {
+  test('handles invalid target type gracefully', () => {
     const workout = {
       name: 'Workout with Invalid Target',
       type: 'running',
@@ -328,12 +372,10 @@ describe('makePayload Function', () => {
       ],
     }
 
-    expect(() => {
-      makePayload(workout)
-    }).toThrow()
+    expect(() => makePayload(workout)).toThrow()
   })
 
-  test('Creates payload for swimming workout', () => {
+  test('creates payload for swimming workout', () => {
     const workout = {
       name: 'Swimming Workout',
       type: 'swimming',

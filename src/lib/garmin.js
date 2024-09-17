@@ -149,11 +149,9 @@ function processRegularStep(step, stepOrder) {
     stepAudioNote: null,
   }
 
-  // Handle targets if any
   if (step.target) {
     processTarget(workoutStep, step)
   } else {
-    // If no target, set targetType to 'no.target'
     workoutStep.targetType = targetTypeMapping['no target']
   }
 
@@ -217,39 +215,65 @@ function processTarget(workoutStep, step) {
     workoutStep.targetValueOne = targetValueOne
     workoutStep.targetValueTwo = targetValueTwo
   }
-
-  // Set targetValueUnit to null as per previous discussion
-  workoutStep.targetValueUnit = null
 }
 
 /**
  * Converts target values based on the target type and units.
  * @param {Object} step - The step object containing target values and units.
- * @param {string} targetTypeKey - The key representing the target type.
+ * @param {string} targetTypeKey - The target type key (e.g., 'pace').
  * @returns {Object} - An object containing converted target values.
  */
 function convertTargetValues(step, targetTypeKey) {
-  let targetValueOne = null
-  let targetValueTwo = null
+  const [minValue, maxValue] = Array.isArray(step.target.value)
+    ? step.target.value
+    : calculateValueRange(step.target.value, targetTypeKey)
 
-  if (Array.isArray(step.target.value)) {
-    let [minValue, maxValue] = step.target.value
-
-    // Perform unit conversions if necessary
-    if (targetTypeKey === 'pace' && step.target.unit === 'min_per_km') {
-      // Convert pace from min/km to m/s
-      minValue = 1000 / (minValue * 60) // minValue in m/s
-      maxValue = 1000 / (maxValue * 60) // maxValue in m/s
-    }
-
-    targetValueOne = minValue
-    targetValueTwo = maxValue
-  } else {
-    // Single value targets
-    targetValueOne = step.target.value
-  }
+  const targetValueOne = convertValueToUnit(minValue, step.target.unit)
+  const targetValueTwo = convertValueToUnit(maxValue, step.target.unit)
 
   return { targetValueOne, targetValueTwo }
+}
+
+/**
+ * Calculates the value range for a target based on the target type.
+ * @param {number} value - The target value.
+ * @param {string} targetTypeKey - The target type key (e.g., 'pace').
+ * @returns {Array} - An array containing the min and max values for the target range.
+ */
+function calculateValueRange(value, targetTypeKey) {
+  if (targetTypeKey === 'pace') {
+    return calculatePaceRange(value)
+  }
+  return [value * 0.95, value * 1.05]
+}
+
+/**
+ * Calculates the pace range based on the target pace.
+ * @param {number} pace - The target pace in min/km.
+ * @returns {Array} - An array containing the min and max pace values.
+ */
+function calculatePaceRange(pace) {
+  const tenSecondsInMinutes = 10 / 60
+
+  const minPace = pace - tenSecondsInMinutes
+  const maxPace = pace + tenSecondsInMinutes
+
+  return [minPace, maxPace]
+}
+
+/**
+ * Converts a value to a specific unit.
+ * @param {number} value - The value to convert.
+ * @param {string} unit - The unit to convert to.
+ * @returns {number} - The converted value.
+ */
+function convertValueToUnit(value, unit) {
+  switch (unit) {
+    case 'min_per_km':
+      return 1000 / (value * 60)
+    default:
+      return value
+  }
 }
 
 export function createWorkout(workout, callback) {
@@ -402,6 +426,46 @@ export const workoutExamples = {
         stepDescription: 'Cool down for 10 minutes',
         stepDuration: 600,
         stepType: 'cooldown',
+      },
+    ],
+  },
+
+  singleValue: {
+    name: 'Tempo Running Workout',
+    type: 'running',
+    steps: [
+      {
+        stepName: '5 min Tempo Run at 6:30 min/km pace',
+        stepDescription: 'Warmup',
+        stepDuration: 300,
+        stepType: 'warmup',
+        target: {
+          type: 'pace',
+          value: 6.5,
+          unit: 'min_per_km',
+        },
+      },
+      {
+        stepName: '10 min Tempo Run at 5:00 min/km pace',
+        stepDescription: 'Interval',
+        stepDuration: 600,
+        stepType: 'interval',
+        target: {
+          type: 'pace',
+          value: 5,
+          unit: 'min_per_km',
+        },
+      },
+      {
+        stepName: '45 min Tempo Run at 4:30 min/km pace',
+        stepDescription: 'Interval',
+        stepDuration: 2700,
+        stepType: 'interval',
+        target: {
+          type: 'pace',
+          value: 4.5,
+          unit: 'min_per_km',
+        },
       },
     ],
   },
