@@ -36,6 +36,7 @@ describe('makePayload Function', () => {
 
     expect(payload.workoutName).toBe('Simple Running Workout')
     expect(payload.sportType).toEqual(sportTypeMapping.running)
+    expect(payload.estimatedDurationInSecs).toBe(2700)
     expect(payload.workoutSegments[0].workoutSteps.length).toBe(3)
 
     const run = payload.workoutSegments[0].workoutSteps[1]
@@ -70,6 +71,7 @@ describe('makePayload Function', () => {
     const payload = makePayload(workout)
 
     expect(payload.workoutSegments[0].workoutSteps.length).toBe(1)
+    expect(payload.estimatedDurationInSecs).toBe(1800)
 
     const run = payload.workoutSegments[0].workoutSteps[0]
     expect(run.targetType).toEqual({
@@ -132,6 +134,7 @@ describe('makePayload Function', () => {
 
     expect(payload.workoutName).toBe('Cycling Power Workout')
     expect(payload.sportType).toEqual(sportTypeMapping.cycling)
+    expect(payload.estimatedDurationInSecs).toBe(3000)
     expect(payload.workoutSegments[0].workoutSteps.length).toBe(3)
     // Check repeat step
     const repeatStep = payload.workoutSegments[0].workoutSteps[1]
@@ -236,6 +239,7 @@ describe('makePayload Function', () => {
 
     expect(payload.workoutName).toBe('Nested Repeats Workout')
     expect(payload.sportType).toEqual(sportTypeMapping.running)
+    expect(payload.estimatedDurationInSecs).toBe(2520)
     const repeatStep = payload.workoutSegments[0].workoutSteps[1]
     expect(repeatStep.type).toBe('RepeatGroupDTO')
     expect(repeatStep.numberOfIterations).toBe(2)

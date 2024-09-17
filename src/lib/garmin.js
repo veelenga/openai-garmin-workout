@@ -65,6 +65,7 @@ export function makePayload(workout) {
   stepOrder = result.stepOrder
 
   payload.workoutSegments.push(segment)
+  payload.estimatedDurationInSecs = calculateEstimatedDuration(payload.workoutSegments)
 
   return payload
 }
@@ -274,6 +275,25 @@ function convertValueToUnit(value, unit) {
     default:
       return value
   }
+}
+
+/**
+ * Calculates the estimated duration of a workout based on its segments and steps.
+ * @param {Array} workoutSegments - The array of workout segments to calculate the duration for.
+ * @returns {number} - The estimated duration of the workout in seconds.
+ */
+function calculateEstimatedDuration(workoutSegments) {
+  let duration = 0
+  workoutSegments.forEach((segment) => {
+    segment.workoutSteps.forEach((step) => {
+      if (step.type === 'ExecutableStepDTO') {
+        duration += step.endConditionValue
+      } else if (step.type === 'RepeatGroupDTO') {
+        duration += step.numberOfIterations * calculateEstimatedDuration([step])
+      }
+    })
+  })
+  return duration
 }
 
 export function createWorkout(workout, callback) {
