@@ -28,7 +28,7 @@ function createModal() {
         <div class="ggw-example-prompts">
           <h3>Example Prompts:</h3>
           <div class="${plugin.examplePrompt.slice(1)}" data-icon="🏊">1500m swim with 5x100m sprints every 400m</div>
-          <div class="${plugin.examplePrompt.slice(1)}" data-icon="🚴">10 minute warmup, 3x(20min - 280wt, 10min - 180wt)</div>
+          <div class="${plugin.examplePrompt.slice(1)}" data-icon="🚴">10 min warmup, 3x(20min at 280wt, 10min at 180wt)</div>
           <div class="${plugin.examplePrompt.slice(1)}" data-icon="🏃">1 hour pace 6:00, 1 hour pace 5:00, 30 min pace 4:00</div>
         </div>
       </div>
