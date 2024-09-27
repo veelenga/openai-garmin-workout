@@ -61,7 +61,8 @@ Constraints:
 - Use "no target" if no specific target is given.
 - For repeats, include "numberOfIterations" and "steps".
 - Use repeats where possible to avoid repeating steps. For example, use a repeat step for 5x1km intervals.
-- Never mix the intervals with the recovery steps. Use separate steps for each.
+- Never mix intervals with recovery or rest steps in the same step. Use separate steps for each.
+- The step with the slowest target in the repeat should be of type "recovery" or "rest".
 - The JSON must be parsable and not include additional explanations. Do not include any formatting or comments in the JSON.
 `
 }
