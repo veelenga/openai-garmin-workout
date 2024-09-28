@@ -20,17 +20,28 @@ export function initGenerateWithAIButton(text = 'Generate with AI') {
 function createModal() {
   const { plugin } = SELECTORS
   const modalHTML = `
-    <div id="${plugin.modal.slice(1)}" class="ggw-workout-modal">
-      <div class="ggw-workout-modal-content">
-        <h2>Generate Workout with AI</h2>
-        <textarea id="${plugin.workoutPrompt.slice(1)}" placeholder="Describe your workout..."></textarea>
-        <button id="${plugin.submitPrompt.slice(1)}" class="ggw-btn ggw-btn-primary">Generate Workout</button>
-        <div class="ggw-example-prompts">
-          <h3>Example Prompts:</h3>
-          <div class="${plugin.examplePrompt.slice(1)}" data-icon="🏊">1500m swim with 5x100m sprints every 400m</div>
-          <div class="${plugin.examplePrompt.slice(1)}" data-icon="🚴">10 min warmup, 3x(20min at 280wt, 10min at 180wt)</div>
-          <div class="${plugin.examplePrompt.slice(1)}" data-icon="🏃">1 hour pace 6:00, 1 hour pace 5:00, 30 min pace 4:00</div>
+    <div id="${plugin.modal.slice(1)}" class="ogw-modal">
+      <div class="ogw-modal-content">
+        <h2 class="ogw-modal-title">Generate Workout with a Prompt</h2>
+        <textarea id="${plugin.workoutPromptInput.slice(1)}" placeholder="Describe your workout..."></textarea>
+        <button id="${plugin.submitPromptBtn.slice(1)}" class="ogw-modal-submit-button">Generate Workout</button>
+
+        <div class="ogw-example-prompts">
+          <div class="ogw-example-item" role="button" tabindex="0">
+            <span class="ogw-example-icon" aria-hidden="true">🏃</span>
+            <span class="${plugin.examplePrompt.slice(1)}">1 hour pace 6:00, 1 hour pace 5:00, 30 min pace 4:00</span>
+          </div>
+          <div class="ogw-example-item" role="button" tabindex="0">
+            <span class="ogw-example-icon" aria-hidden="true">🚴</span>
+            <span class="${plugin.examplePrompt.slice(1)}">10 min warmup, 3x(20min at 280wt, 10min at 180wt)</span>
+          </div>
+          <div class="ogw-example-item" role="button" tabindex="0">
+            <span class="ogw-example-icon" aria-hidden="true">🏊</span>
+            <span class="${plugin.examplePrompt.slice(1)}">1500m swim with 5x100m sprints every 400m</span>
+          </div>
         </div>
+
+        <p class="ogw-example-hint">Click an example to use it as a starting point</p>
       </div>
     </div>
   `
@@ -62,8 +73,8 @@ function createButton(createWorkoutButton, text) {
 function setupEventListeners(newButton) {
   const { plugin } = SELECTORS
   const modal = document.getElementById(plugin.modal.slice(1))
-  const submitButton = document.getElementById(plugin.submitPrompt.slice(1))
-  const textArea = document.getElementById(plugin.workoutPrompt.slice(1))
+  const submitButton = document.getElementById(plugin.submitPromptBtn.slice(1))
+  const textArea = document.getElementById(plugin.workoutPromptInput.slice(1))
   const examplePrompts = document.querySelectorAll(plugin.examplePrompt)
 
   newButton.addEventListener('click', (event) => {

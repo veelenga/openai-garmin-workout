@@ -1,7 +1,154 @@
-button#create-workout-with-ai {
+:root {
+  /* Colors */
+  --background-color: #f5f5f5;
+  --modal-background: rgba(255, 255, 255, 0.95);
+  --text-color: #333333;
+  --accent-color: #f0f0f0;
+  --primary-gradient: linear-gradient(135deg, #3a3a3a, #1a1a1a);
+
+  /* Sizes */
+  --border-radius: 12px;
+
+  /* Animations */
+  --transition-speed: 0.3s;
+}
+
+/* Modal Styles */
+.ogw-modal {
+  display: none;
+  position: fixed;
+  z-index: 10000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.ogw-modal-content {
+  background-color: var(--modal-background);
+  margin: 10% auto;
+  padding: 2.0rem;
+  border: 1px solid #888;
+  width: 90%;
+  max-width: 600px;
+  border-radius: var(--border-radius);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.ogw-modal-title {
+  margin: 0 0 1.5rem;
+  font-size: 1.75rem;
+  font-weight: 700;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#ogw-modal-textarea {
+  width: 94%;
+  height: 100%;
+  padding: 1rem;
+  background-color: var(--accent-color);
+  border: 1px solid #e0e0e0;
+  border-radius: var(--border-radius);
+  resize: vertical;
+  min-height: 120px;
+  font-size: 1rem;
+  color: var(--text-color);
+  transition: border-color var(--transition-speed);
+  margin-bottom: 1.5rem;
+}
+
+#ogw-modal-textarea:focus {
+  outline: none;
+  border-color: #3a3a3a;
+}
+
+.ogw-modal-submit-button {
+  width: 100%;
+  background: var(--primary-gradient);
+  color: white;
+  border: none;
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all var(--transition-speed);
+  position: relative;
+  overflow: hidden;
+}
+
+.ogw-modal-submit-button::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0) 80%);
+  transform: scale(0);
+  transition: transform 0.5s ease-out;
+}
+
+.ogw-modal-submit-button:hover::before {
+  transform: scale(1);
+}
+
+.ogw-modal-submit-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Example Prompts Styles */
+.ogw-example-prompts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin: 2rem 0 1rem;
+}
+
+.ogw-example-item {
+  background-color: var(--accent-color);
+  border-radius: var(--border-radius);
+  padding: 1rem;
+  cursor: pointer;
+  transition: background-color var(--transition-speed), transform var(--transition-speed);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.ogw-example-item:hover {
+  background-color: #e0e0e0;
+  transform: translateY(-2px);
+}
+
+.ogw-example-icon {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.ogw-example-hint {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 0.5rem;
+  margin-bottom: 0px;
+}
+
+/* Button and Spinner Styles */
+button#ogw-create-workout {
   display: inline-flex;
 }
-.ggw-spinner {
+
+.ogw-spinner {
   display: inline-block;
   width: 16px;
   height: 16px;
@@ -13,77 +160,24 @@ button#create-workout-with-ai {
   animation: spin 1s ease-in-out infinite;
   -webkit-animation: spin 1s ease-in-out infinite;
 }
+
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
-.ggw-workout-modal {
-  display: none;
-  position: fixed;
-  z-index: 10000;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0,0,0,0.4);
-}
-.ggw-workout-modal-content {
-  background-color: #fefefe;
-  margin: 15% auto;
-  padding: 20px;
-  border: 1px solid #888;
-  width: 100%;
-  max-width: 600px;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-#workout-prompt {
-  width: 97%;
-  height: 100px;
-  margin-bottom: 10px;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-.ggw-example-prompts {
-  margin-top: 20px;
-}
-.ggw-example-prompt {
-  display: block;
-  margin-bottom: 10px;
-  padding: 10px;
-  background-color: #f0f0f0;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-.ggw-example-prompt:hover {
-  background-color: #e0e0e0;
-}
-.ggw-example-prompt::before {
-  content: attr(data-icon);
-  margin-right: 10px;
-  font-size: 1.2em;
-}
-.ggw-btn {
-  padding: 10px 15px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-}
-.ggw-btn-primary {
-  background-color: #007bff;
-  color: white;
-}
-.ggw-btn-primary:hover {
-  background-color: #0056b3;
-}
-.ggw-btn-form {
-  background-color: #28a745;
-  color: white;
-}
-.ggw-btn-form:hover {
-  background-color: #218838;
+
+/* Media Queries */
+@media (max-width: 600px) {
+  .ogw-modal-content {
+    width: 95%;
+    padding: 2rem;
+  }
+
+  .ogw-example-prompts {
+    grid-template-columns: 1fr;
+  }
+
+  .ogw-modal-title {
+    font-size: 1.5rem;
+  }
 }
