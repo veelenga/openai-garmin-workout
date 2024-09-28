@@ -11,7 +11,9 @@ export function initGenerateWithAIButton(text = 'Generate with AI') {
 
   createModal()
   const newButton = createButton(createWorkoutButton, text)
-  setupEventListeners(newButton)
+  const cleanup = setupEventListeners(newButton)
+
+  return cleanup
 }
 
 /**
@@ -22,7 +24,7 @@ function createModal() {
   const modalHTML = `
     <div id="${plugin.modal.slice(1)}" class="ogw-modal">
       <div class="ogw-modal-content">
-        <h2 class="ogw-modal-title">Generate Workout with a Prompt</h2>
+        <h2 class="ogw-modal-title">Generate Workout with AI</h2>
         <textarea id="${plugin.workoutPromptInput.slice(1)}" placeholder="Describe your workout..."></textarea>
         <button id="${plugin.submitPromptBtn.slice(1)}" class="ogw-modal-submit-button">Generate Workout</button>
 
@@ -61,7 +63,7 @@ function createButton(createWorkoutButton, text) {
   newButton.setAttribute('aria-label', text)
   newButton.removeAttribute('disabled')
   newButton.textContent = text
-  newButton.style.backgroundColor = 'green'
+  newButton.style.backgroundColor = 'black'
   createWorkoutButton.parentElement.appendChild(newButton)
   return newButton
 }
@@ -77,24 +79,47 @@ function setupEventListeners(newButton) {
   const textArea = document.getElementById(plugin.workoutPromptInput.slice(1))
   const examplePrompts = document.querySelectorAll(plugin.examplePrompt)
 
-  newButton.addEventListener('click', (event) => {
+  const handleNewButtonClick = (event) => {
     event.preventDefault()
     modal.style.display = 'block'
-  })
+  }
 
-  submitButton.addEventListener('click', () => handleSubmit(modal, textArea))
+  const handleSubmitButtonClick = () => handleSubmit(modal, textArea)
 
-  examplePrompts.forEach((prompt) => {
-    prompt.addEventListener('click', () => {
-      textArea.value = prompt.textContent
-    })
-  })
+  const handleExamplePromptClick = (prompt) => () => {
+    textArea.value = prompt.textContent
+  }
 
-  window.addEventListener('click', (event) => {
+  const handleWindowClick = (event) => {
     if (event.target === modal) {
       modal.style.display = 'none'
     }
+  }
+
+  const handleKeyDown = (event) => {
+    if (event.key === 'Escape' && modal.style.display === 'block') {
+      modal.style.display = 'none'
+    }
+  }
+
+  newButton.addEventListener('click', handleNewButtonClick)
+  submitButton.addEventListener('click', handleSubmitButtonClick)
+  examplePrompts.forEach((prompt) => {
+    prompt.addEventListener('click', handleExamplePromptClick(prompt))
   })
+  window.addEventListener('click', handleWindowClick)
+  document.addEventListener('keydown', handleKeyDown)
+
+  // Return a cleanup function
+  return function cleanup() {
+    newButton.removeEventListener('click', handleNewButtonClick)
+    submitButton.removeEventListener('click', handleSubmitButtonClick)
+    examplePrompts.forEach((prompt) => {
+      prompt.removeEventListener('click', handleExamplePromptClick(prompt))
+    })
+    window.removeEventListener('click', handleWindowClick)
+    document.removeEventListener('keydown', handleKeyDown)
+  }
 }
 
 /**

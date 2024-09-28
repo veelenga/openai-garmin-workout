@@ -27,13 +27,25 @@
 
 .ogw-modal-content {
   background-color: var(--modal-background);
-  margin: 10% auto;
+  margin: 15% auto;
   padding: 2.0rem;
   border: 1px solid #888;
   width: 90%;
   max-width: 600px;
   border-radius: var(--border-radius);
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  position: relative;
+  overflow: hidden;
+}
+
+.ogw-modal-content::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: var(--primary-gradient);
 }
 
 .ogw-modal-title {
