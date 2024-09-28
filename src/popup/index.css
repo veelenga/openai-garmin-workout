@@ -10,6 +10,7 @@
   --color-button: #000;
   --color-button-hover: #333;
   --color-success: #28a745;
+  --color-error: #dc3545;
 
   /* Fonts */
   --font-family-primary: 'Arial', sans-serif;
@@ -79,7 +80,6 @@ label {
 }
 
 /* Form elements */
-input[type="text"],
 input[type="password"],
 select {
   width: 100%;
@@ -90,7 +90,11 @@ select {
   transition: border-color var(--transition-duration) ease;
 }
 
-input[type="text"]:focus,
+input[type="password"].error {
+  border-color: var(--color-error);
+  box-shadow: 0 0 0 2px rgba(255, 65, 54, 0.2);
+}
+
 input[type="password"]:focus,
 select:focus {
   border-color: var(--color-link);

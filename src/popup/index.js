@@ -1,36 +1,64 @@
 import './index.css'
 
-document.getElementById('save').addEventListener('click', () => {
-  const apiKey = document.getElementById('apiKey').value
-  const selectedModel = document.getElementById('modelSelect').value
-  if (apiKey) {
-    chrome.storage.local.set({ openaiApiKey: apiKey, openaiModel: selectedModel }, () => {
-      document.getElementById('status').textContent = 'Settings saved!'
-      document.getElementById('apiKey').value = '********' // Mask the API key once it's saved
-      setTimeout(() => {
-        document.getElementById('status').textContent = ''
-      }, 2000) // Clear the status message after 2 seconds
+document.addEventListener('DOMContentLoaded', function () {
+  const apiKeyInput = document.getElementById('apiKey')
+  const modelSelect = document.getElementById('modelSelect')
+  const saveButton = document.getElementById('save')
+  const clearButton = document.getElementById('clear')
+  const statusMessage = document.getElementById('status')
+
+  function checkAndHighlightApiKey() {
+    chrome.storage.local.get('openaiApiKey', function (result) {
+      if (!result.openaiApiKey) {
+        apiKeyInput.classList.add('error')
+        apiKeyInput.focus()
+      } else {
+        apiKeyInput.classList.remove('error')
+        apiKeyInput.value = '********'
+      }
     })
   }
-})
 
-document.getElementById('clear').addEventListener('click', () => {
-  chrome.storage.local.remove(['openaiApiKey', 'openaiModel'], () => {
-    document.getElementById('apiKey').value = ''
-    document.getElementById('modelSelect').value = 'gpt-4o-mini'
-    document.getElementById('status').textContent = 'Settings cleared!'
-    setTimeout(() => {
-      document.getElementById('status').textContent = ''
-    }, 2000) // Clear the status message after 2 seconds
+  checkAndHighlightApiKey()
+
+  chrome.storage.local.get('openaiModel', function (result) {
+    if (result.openaiModel) {
+      modelSelect.value = result.openaiModel
+    }
   })
-})
 
-// Load saved settings when the popup is opened
-chrome.storage.local.get(['openaiApiKey', 'openaiModel'], (result) => {
-  if (result.openaiApiKey) {
-    document.getElementById('apiKey').value = '********' // Display masked version
-  }
-  if (result.openaiModel) {
-    document.getElementById('modelSelect').value = result.openaiModel
-  }
+  saveButton.addEventListener('click', function () {
+    const apiKey = apiKeyInput.value
+    const selectedModel = modelSelect.value
+
+    if (apiKey && apiKey !== '********') {
+      chrome.storage.local.set({ openaiApiKey: apiKey, openaiModel: selectedModel }, function () {
+        statusMessage.textContent = 'Settings saved!'
+        apiKeyInput.classList.remove('error')
+        setTimeout(() => {
+          statusMessage.textContent = ''
+        }, 2000)
+      })
+    } else {
+      statusMessage.textContent = 'Please enter a valid API key.'
+      apiKeyInput.classList.add('error')
+      apiKeyInput.focus()
+    }
+  })
+
+  clearButton.addEventListener('click', function () {
+    chrome.storage.local.remove(['openaiApiKey', 'openaiModel'], function () {
+      apiKeyInput.value = ''
+      modelSelect.value = 'gpt-3.5-turbo'
+      statusMessage.textContent = 'Settings cleared!'
+      checkAndHighlightApiKey()
+      setTimeout(() => {
+        statusMessage.textContent = ''
+      }, 2000)
+    })
+  })
+
+  apiKeyInput.addEventListener('input', function () {
+    apiKeyInput.classList.remove('error')
+  })
 })

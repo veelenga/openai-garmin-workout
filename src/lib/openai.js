@@ -1,4 +1,5 @@
 import OpenAI from 'openai'
+import { ERRORS } from '../lib/constants.js'
 
 /**
  * Generates a workout based on the description.
@@ -8,18 +9,22 @@ import OpenAI from 'openai'
  * @returns {Promise<Object>} - The generated workout object.
  */
 export async function generateWorkout(apiKey, model, description) {
-  const prompt = createPrompt(description)
-  const client = new OpenAI({ apiKey })
+  try {
+    const prompt = createPrompt(description)
+    const client = new OpenAI({ apiKey })
 
-  const response = await client.chat.completions.create({
-    model,
-    messages: [{ role: 'user', content: prompt }],
-    max_tokens: 1000,
-    temperature: 0.7,
-  })
+    const response = await client.chat.completions.create({
+      model,
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 1000,
+      temperature: 0.7,
+    })
 
-  const assistantMessage = response.choices[0].message.content
-  return parseWorkoutResponse(assistantMessage)
+    const assistantMessage = response.choices[0].message.content
+    return parseWorkoutResponse(assistantMessage)
+  } catch (error) {
+    throw new ERRORS.WorkoutGenerationError(error.message)
+  }
 }
 
 function createPrompt(description) {

@@ -1,4 +1,4 @@
-import { RUNTIME_MESSAGES } from '../lib/constants.js'
+import { RUNTIME_MESSAGES, ERRORS } from '../lib/constants.js'
 import { generateWorkout } from '../lib/openai.js'
 
 function getOpenAISettings() {
@@ -10,7 +10,7 @@ function getOpenAISettings() {
           model: result.openaiModel,
         })
       } else {
-        reject(new Error('API Key or Model not found'))
+        reject(new ERRORS.MissingOpenAISettingsError())
       }
     })
   })
@@ -18,11 +18,22 @@ function getOpenAISettings() {
 
 chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   if (request.type === RUNTIME_MESSAGES.generateWorkout) {
-    console.log('Generating workout...')
+    console.log('Attempting to generate workout...')
     getOpenAISettings()
       .then(({ apiKey, model }) => generateWorkout(apiKey, model, request.prompt))
       .then((workout) => sendResponse({ type: RUNTIME_MESSAGES.generateWorkout, workout }))
-      .catch((error) => sendResponse({ type: RUNTIME_MESSAGES.error, error: error.message }))
+      .catch((error) => {
+        console.error('Error generating workout:', error)
+
+        if (error instanceof ERRORS.MissingOpenAISettingsError) {
+          chrome.action.openPopup()
+          sendResponse({ type: RUNTIME_MESSAGES.noAPIKey })
+        } else if (error instanceof ERRORS.WorkoutGenerationError) {
+          sendResponse({ type: RUNTIME_MESSAGES.error, message: error.message })
+        } else {
+          sendResponse({ type: RUNTIME_MESSAGES.error })
+        }
+      })
     return true
   }
   console.error('Unknown message type:', request.type)

@@ -11,11 +11,14 @@ export function requestWorkout(prompt) {
       switch (response?.type) {
         case RUNTIME_MESSAGES.generateWorkout:
           return createWorkout(response.workout, (response) => goToWorkout(response.workoutId))
+        case RUNTIME_MESSAGES.noAPIKey:
+          alert("You haven't set up your OpenAI API key yet. Please do so in the extension popup.")
+          break
         case RUNTIME_MESSAGES.error:
           alert(response.message)
           break
         default:
-          alert('Something went wrong')
+          alert('Something went wrong. Please again later')
       }
       setButtonLoading(generateButton, false)
     },
