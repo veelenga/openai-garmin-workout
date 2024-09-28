@@ -4,10 +4,9 @@ const workoutUrl = 'https://connect.garmin.com/modern/workout/'
 export const sportTypeMapping = {
   running: { sportTypeId: 1, sportTypeKey: 'running', displayOrder: 1 },
   cycling: { sportTypeId: 2, sportTypeKey: 'cycling', displayOrder: 2 },
-  swimming: { sportTypeId: 5, sportTypeKey: 'swimming', displayOrder: 5 },
-  walking: { sportTypeId: 3, sportTypeKey: 'walking', displayOrder: 3 },
-  cardio: { sportTypeId: 8, sportTypeKey: 'cardio', displayOrder: 8 },
-  strength: { sportTypeId: 9, sportTypeKey: 'strength_training', displayOrder: 9 },
+  swimming: { sportTypeId: 4, sportTypeKey: 'swimming', displayOrder: 5 },
+  strength: { sportTypeId: 5, sportTypeKey: 'strength_training', displayOrder: 9 },
+  cardio: { sportTypeId: 6, sportTypeKey: 'cardio_training', displayOrder: 8 },
 }
 
 export const stepTypeMapping = {

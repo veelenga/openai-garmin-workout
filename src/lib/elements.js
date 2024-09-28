@@ -37,7 +37,7 @@ function createModal() {
           </div>
           <div class="ogw-example-item" role="button" tabindex="0">
             <span class="ogw-example-icon" aria-hidden="true">🏊</span>
-            <span class="${plugin.examplePrompt.slice(1)}">1500m swim with 5x100m sprints every 400m</span>
+            <span class="${plugin.examplePrompt.slice(1)}">10 min warmup of swim, 5x(1min sprint, 4min rest)</span>
           </div>
         </div>
 
