@@ -1,6 +1,8 @@
 import './index.css'
 
 document.addEventListener('DOMContentLoaded', function () {
+  const hiddenKey = '********'
+
   const apiKeyInput = document.getElementById('apiKey')
   const modelSelect = document.getElementById('modelSelect')
   const saveButton = document.getElementById('save')
@@ -14,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
         apiKeyInput.focus()
       } else {
         apiKeyInput.classList.remove('error')
-        apiKeyInput.value = '********'
+        apiKeyInput.value = hiddenKey
       }
     })
   }
@@ -31,25 +33,28 @@ document.addEventListener('DOMContentLoaded', function () {
     const apiKey = apiKeyInput.value
     const selectedModel = modelSelect.value
 
-    if (apiKey && apiKey !== '********') {
-      chrome.storage.local.set({ openaiApiKey: apiKey, openaiModel: selectedModel }, function () {
-        statusMessage.textContent = 'Settings saved!'
-        apiKeyInput.classList.remove('error')
-        setTimeout(() => {
-          statusMessage.textContent = ''
-        }, 2000)
-      })
-    } else {
-      statusMessage.textContent = 'Please enter a valid API key.'
-      apiKeyInput.classList.add('error')
-      apiKeyInput.focus()
+    const propsToSave = { openaiModel: selectedModel }
+    if (apiKey !== hiddenKey) {
+      propsToSave.openaiApiKey = apiKey
     }
+
+    chrome.storage.local.set({ openaiApiKey: apiKey, openaiModel: selectedModel }, function () {
+      statusMessage.textContent = 'Settings saved!'
+      if (apiKey) {
+        apiKeyInput.classList.remove('error')
+      } else {
+        apiKeyInput.classList.add('error')
+      }
+      setTimeout(() => {
+        statusMessage.textContent = ''
+      }, 2000)
+    })
   })
 
   clearButton.addEventListener('click', function () {
     chrome.storage.local.remove(['openaiApiKey', 'openaiModel'], function () {
       apiKeyInput.value = ''
-      modelSelect.value = 'gpt-3.5-turbo'
+      modelSelect.value = 'gpt-4o-mini'
       statusMessage.textContent = 'Settings cleared!'
       checkAndHighlightApiKey()
       setTimeout(() => {

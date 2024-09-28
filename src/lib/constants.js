@@ -19,7 +19,7 @@ export const SELECTORS = {
     modal: '#ogw-modal',
     workoutPromptInput: '#ogw-modal-textarea',
     submitPromptBtn: '#ogw-modal-submit-button',
-    examplePrompt: '.ogw-example-item-prompt',
+    examplePrompt: '.ogw-example-item',
   },
 }
 

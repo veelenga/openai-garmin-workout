@@ -29,17 +29,17 @@ function createModal() {
         <button id="${plugin.submitPromptBtn.slice(1)}" class="ogw-modal-submit-button">Generate Workout</button>
 
         <div class="ogw-example-prompts">
-          <div class="ogw-example-item" role="button" tabindex="0">
+          <div class="${plugin.examplePrompt.slice(1)}" role="button" tabindex="0">
             <span class="ogw-example-icon" aria-hidden="true">🏃</span>
-            <span class="${plugin.examplePrompt.slice(1)}">1 hour pace 6:00, 1 hour pace 5:00, 30 min pace 4:00</span>
+            <span>1 hour pace 6:00, 1 hour pace 5:00, 30 min pace 4:00</span>
           </div>
-          <div class="ogw-example-item" role="button" tabindex="0">
+          <div class="${plugin.examplePrompt.slice(1)}" role="button" tabindex="0">
             <span class="ogw-example-icon" aria-hidden="true">🚴</span>
-            <span class="${plugin.examplePrompt.slice(1)}">10 min warmup, 3x(20min at 280wt, 10min at 180wt)</span>
+            <span>10 min warmup, 3x(20min at 280wt, 10min at 180wt)</span>
           </div>
-          <div class="ogw-example-item" role="button" tabindex="0">
+          <div class="${plugin.examplePrompt.slice(1)}" role="button" tabindex="0">
             <span class="ogw-example-icon" aria-hidden="true">🏊</span>
-            <span class="${plugin.examplePrompt.slice(1)}">10 min warmup of swim, 5x(1min sprint, 4min rest)</span>
+            <span>10 min warmup of swim, 5x(1min sprint, 4min rest)</span>
           </div>
         </div>
 
@@ -87,7 +87,7 @@ function setupEventListeners(newButton) {
   const handleSubmitButtonClick = () => handleSubmit(modal, textArea)
 
   const handleExamplePromptClick = (prompt) => () => {
-    textArea.value = prompt.textContent
+    textArea.value = prompt.children[1].textContent
   }
 
   const handleWindowClick = (event) => {
