@@ -2,16 +2,17 @@ import OpenAI from 'openai'
 
 /**
  * Generates a workout based on the description.
+ * @param {string} apiKey - The OpenAI API key.
+ * @param {string} model - The OpenAI model to use.
  * @param {string} description - The workout description.
- * @param {OpenAI} [openaiClient] - Optional OpenAI client for testing.
  * @returns {Promise<Object>} - The generated workout object.
  */
-export async function generateWorkout(apiKey, description) {
+export async function generateWorkout(apiKey, model, description) {
   const prompt = createPrompt(description)
   const client = new OpenAI({ apiKey })
 
   const response = await client.chat.completions.create({
-    model: 'gpt-4o-mini',
+    model,
     messages: [{ role: 'user', content: prompt }],
     max_tokens: 1000,
     temperature: 0.7,

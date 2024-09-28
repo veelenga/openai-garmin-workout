@@ -9,5 +9,40 @@
   <body>
     <div id="app"></div>
     <script type="module" src="/src/popup/index.js"></script>
+
+    <div class="popup-container">
+      <h1 class="popup-title">OpenAI Garmin Workout</h1>
+
+      <div class="section">
+        <div class="section-title">
+          <label for="apiKey">OpenAI API Key:</label>
+          <a href="https://platform.openai.com/api-keys" target="_blank" class="link">how to get a key</a>
+        </div>
+
+        <input type="text" id="apiKey" placeholder="Enter your OpenAI API key">
+      </div>
+
+      <div class="section">
+        <div class="section-title">
+          <label for="modelSelect">Select OpenAI Model:</label>
+          <a href="https://platform.openai.com/docs/models" target="_blank" class="link">learn more</a>
+        </div>
+
+        <select id="modelSelect">
+          <option value="gpt-4o-mini">GPT-4o Mini (Recommended)</option>
+          <option value="gpt-4o">GPT-4o</option>
+          <option value="o1-preview">O1 Preview</option>
+          <option value="o1-mini">O1 Mini</option>
+          <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+        </select>
+      </div>
+
+      <div class="button-container">
+        <button id="save" class="action-button">Save</button>
+        <button id="clear" class="action-button">Clear</button>
+      </div>
+
+      <p id="status" class="status-message"></p>
+    </div>
   </body>
 </html>
