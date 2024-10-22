@@ -1,7 +1,7 @@
 {
   "name": "openai-garmin-workout",
   "displayName": "OpenAI Garmin Workout",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": "Vitalii Elenhaupt",
   "description": "Create Garmin Connect workouts using generative AI",
   "type": "module",

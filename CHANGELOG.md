@@ -1,7 +1,10 @@
 ## Unreleased
 
+## 1.0.2
+
 * fixed a problem with saving an OpenAI API key
 * fixed issue with modal popup when page is resized
+* fix zip task to avoid broken images
 * remove unused icons
 
 ## 1.0.1
