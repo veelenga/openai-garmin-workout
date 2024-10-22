@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function () {
       propsToSave.openaiApiKey = apiKey
     }
 
-    chrome.storage.local.set({ openaiApiKey: apiKey, openaiModel: selectedModel }, function () {
+    chrome.storage.local.set(propsToSave, function () {
       statusMessage.textContent = 'Settings saved!'
       if (apiKey) {
         apiKeyInput.classList.remove('error')

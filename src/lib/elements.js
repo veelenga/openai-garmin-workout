@@ -5,7 +5,13 @@ import { EVENTS, SELECTORS } from './constants'
  */
 export function initGenerateWithAIButton(text = 'Generate with AI') {
   const createWorkoutButton = document.querySelector(SELECTORS.garminConnect.createWorkoutButton)
-  if (!createWorkoutButton || document.querySelector(SELECTORS.plugin.generateWithAIButton)) {
+  if (!createWorkoutButton) {
+    return
+  }
+
+  const existingButton = document.querySelector(SELECTORS.plugin.generateWithAIButton)
+  if (existingButton) {
+    setupEventListeners(existingButton)
     return
   }
 

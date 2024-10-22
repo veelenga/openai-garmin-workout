@@ -310,7 +310,7 @@ export function createWorkout(workout, callback) {
   let token = accessTokenMap.access_token
   const payload = makePayload(workout)
 
-  console.log('payload ', payload)
+  console.debug('[OGW] Payload:', JSON.stringify(payload))
 
   xhr.open('POST', addWorkoutEndpoint, true)
   xhr.setRequestHeader('Content-Type', 'application/json')

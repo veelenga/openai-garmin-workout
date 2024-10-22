@@ -18,12 +18,12 @@ function getOpenAISettings() {
 
 chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
   if (request.type === RUNTIME_MESSAGES.generateWorkout) {
-    console.log('Attempting to generate workout...')
+    console.log('[OGW] => Attempting to generate workout...')
     getOpenAISettings()
       .then(({ apiKey, model }) => generateWorkout(apiKey, model, request.prompt))
       .then((workout) => sendResponse({ type: RUNTIME_MESSAGES.generateWorkout, workout }))
       .catch((error) => {
-        console.error('Error generating workout:', error)
+        console.error('[OGW] => Error generating workout:', error)
 
         if (error instanceof ERRORS.MissingOpenAISettingsError) {
           chrome.action.openPopup()
@@ -36,5 +36,5 @@ chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
       })
     return true
   }
-  console.error('Unknown message type:', request.type)
+  console.error('[OGW] => Unknown message type:', request.type)
 })

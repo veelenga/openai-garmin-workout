@@ -18,6 +18,7 @@ function removeListeners() {
 
 function handleIndexPageReady() {
   if (cleanupFunction) {
+    console.debug('[OGW] => Cleanup listeners')
     cleanupFunction()
   }
   cleanupFunction = initGenerateWithAIButton()
@@ -40,7 +41,7 @@ export function waitPageLoaded() {
 
     if (isWorkoutIndexPage) {
       evtName = EVENTS.indexPageReady
-      console.debug('====> Workout index page is ready')
+      console.debug('[OGW] => Workout index page is ready')
     }
 
     if (evtName) {
