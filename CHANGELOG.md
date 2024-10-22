@@ -1,3 +1,9 @@
+## Unreleased
+
+* fixed a problem with saving an OpenAI API key
+* fixed issue with modal popup when page is resized
+* remove unused icons
+
 ## 1.0.1
 
 Chrome 130+ compatibility. See https://github.com/crxjs/chrome-extension-tools/issues/918
