@@ -5,6 +5,9 @@
   --text-color: #333333;
   --accent-color: #f0f0f0;
   --primary-gradient: linear-gradient(135deg, #3a3a3a, #1a1a1a);
+  --error-background: #fee2e2;
+  --error-border: #fecaca;
+  --error-text: #dc2626;
 
   /* Sizes */
   --border-radius: 12px;
@@ -82,6 +85,8 @@
 }
 
 .ogw-modal-submit-button {
+  display: flex;
+  justify-content: center;
   width: 100%;
   background: var(--primary-gradient);
   color: white;
@@ -115,6 +120,25 @@
 .ogw-modal-submit-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.ogw-error-message {
+  background-color: var(--error-background);
+  padding: 1rem;
+  border-radius: var(--border-radius);
+  margin: 1rem 0;
+  font-size: 1rem;
+  border: 1px solid var(--error-border);
+  transition: all var(--transition-speed);
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.1);
+  color: var(--error-text);
+  line-height: 1.5;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  max-height: 200px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Example Prompts Styles */
@@ -164,7 +188,6 @@ button#ogw-create-workout {
   display: inline-block;
   width: 16px;
   height: 16px;
-  margin-top: 3px;
   margin-left: 5px;
   border: 3px solid rgba(255,255,255,.3);
   border-radius: 50%;
