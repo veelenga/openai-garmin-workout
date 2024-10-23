@@ -15,6 +15,12 @@ export default defineConfig(({ mode }) => {
       },
     },
 
+    css: {
+      postcss: {
+        minimize: true,
+      },
+    },
+
     plugins: [crx({ manifest })],
   }
 })

@@ -1,5 +1,7 @@
 ## Unreleased
 
+* minimize css
+
 ## 1.0.2
 
 * fixed a problem with saving an OpenAI API key
