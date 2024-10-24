@@ -30,7 +30,7 @@
 
 .ogw-modal-content {
   background-color: var(--modal-background);
-  margin: 15% auto;
+  margin: 5% auto;
   padding: 2.0rem;
   border: 1px solid #888;
   width: 90%;
@@ -68,15 +68,15 @@
   width: 94%;
   height: 100%;
   padding: 1rem;
-  background-color: var(--accent-color);
   border: 1px solid #e0e0e0;
-  border-radius: var(--border-radius);
   resize: vertical;
   min-height: 120px;
   font-size: 1rem;
-  color: var(--text-color);
-  transition: border-color var(--transition-speed);
   margin-bottom: 1.5rem;
+  color: var(--text-color);
+  background-color: var(--accent-color);
+  border-radius: var(--border-radius);
+  transition: border-color var(--transition-speed);
 }
 
 #ogw-modal-textarea:focus {
@@ -88,17 +88,17 @@
   display: flex;
   justify-content: center;
   width: 100%;
-  background: var(--primary-gradient);
   color: white;
   border: none;
   padding: 1rem;
-  border-radius: var(--border-radius);
   cursor: pointer;
   font-size: 1rem;
   font-weight: 600;
-  transition: all var(--transition-speed);
   position: relative;
   overflow: hidden;
+  background: var(--primary-gradient);
+  border-radius: var(--border-radius);
+  transition: all var(--transition-speed);
 }
 
 .ogw-modal-submit-button::before {
@@ -123,14 +123,9 @@
 }
 
 .ogw-error-message {
-  background-color: var(--error-background);
   padding: 1rem;
-  border-radius: var(--border-radius);
   margin: 1rem 0;
   font-size: 1rem;
-  border: 1px solid var(--error-border);
-  transition: all var(--transition-speed);
-  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.1);
   color: var(--error-text);
   line-height: 1.5;
   word-wrap: break-word;
@@ -139,6 +134,11 @@
   max-height: 200px;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  background-color: var(--error-background);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--error-border);
+  transition: all var(--transition-speed);
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.1);
 }
 
 /* Example Prompts Styles */
