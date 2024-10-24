@@ -123,11 +123,11 @@
 }
 
 .ogw-error-message {
-  padding: 1rem;
-  margin: 1rem 0;
-  font-size: 1rem;
+  padding: 0.75rem;
+  margin: 0.75rem 0;
+  font-size: 0.875rem;
   color: var(--error-text);
-  line-height: 1.5;
+  line-height: 1.4;
   word-wrap: break-word;
   overflow-wrap: break-word;
   white-space: pre-wrap;
@@ -139,6 +139,16 @@
   border: 1px solid var(--error-border);
   transition: all var(--transition-speed);
   box-shadow: 0 2px 4px rgba(220, 38, 38, 0.1);
+}
+
+.ogw-error-link {
+  cursor: pointer;
+  color: inherit;
+  text-decoration: underline;
+}
+
+.ogw-error-link:hover {
+  opacity: 0.8;
 }
 
 /* Example Prompts Styles */
