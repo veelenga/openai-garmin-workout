@@ -34,6 +34,8 @@ function createModal() {
         <textarea id="${plugin.workoutPromptInput.slice(1)}" placeholder="Describe your workout..."></textarea>
         <button id="${plugin.submitPromptBtn.slice(1)}" class="ogw-modal-submit-button">Generate Workout</button>
 
+        <div id="${plugin.errorMessage.slice(1)}" class="ogw-error-message" style="display: none;"></div>
+
         <div class="ogw-example-prompts">
           <div class="${plugin.examplePrompt.slice(1)}" role="button" tabindex="0">
             <span class="ogw-example-icon" aria-hidden="true">🏃</span>
@@ -90,7 +92,7 @@ function setupEventListeners(newButton) {
     modal.style.display = 'block'
   }
 
-  const handleSubmitButtonClick = () => handleSubmit(modal, textArea)
+  const handleSubmitButtonClick = () => handleSubmit(textArea)
 
   const handleExamplePromptClick = (prompt) => () => {
     textArea.value = prompt.children[1].textContent
@@ -130,14 +132,11 @@ function setupEventListeners(newButton) {
 
 /**
  * Handles the submit action when generating a workout.
- * @param {HTMLElement} modal - The modal element.
  * @param {HTMLTextAreaElement} textArea - The textarea containing the workout prompt.
  */
-function handleSubmit(modal, textArea) {
+function handleSubmit(textArea) {
   const result = textArea.value.trim()
   if (result) {
     document.dispatchEvent(new CustomEvent(EVENTS.newPromptFired, { detail: result }))
-    modal.style.display = 'none'
-    textArea.value = ''
   }
 }

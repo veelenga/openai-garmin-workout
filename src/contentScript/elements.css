@@ -5,6 +5,9 @@
   --text-color: #333333;
   --accent-color: #f0f0f0;
   --primary-gradient: linear-gradient(135deg, #3a3a3a, #1a1a1a);
+  --error-background: #fee2e2;
+  --error-border: #fecaca;
+  --error-text: #dc2626;
 
   /* Sizes */
   --border-radius: 12px;
@@ -27,7 +30,7 @@
 
 .ogw-modal-content {
   background-color: var(--modal-background);
-  margin: 15% auto;
+  margin: 5% auto;
   padding: 2.0rem;
   border: 1px solid #888;
   width: 90%;
@@ -65,15 +68,15 @@
   width: 94%;
   height: 100%;
   padding: 1rem;
-  background-color: var(--accent-color);
   border: 1px solid #e0e0e0;
-  border-radius: var(--border-radius);
   resize: vertical;
   min-height: 120px;
   font-size: 1rem;
-  color: var(--text-color);
-  transition: border-color var(--transition-speed);
   margin-bottom: 1.5rem;
+  color: var(--text-color);
+  background-color: var(--accent-color);
+  border-radius: var(--border-radius);
+  transition: border-color var(--transition-speed);
 }
 
 #ogw-modal-textarea:focus {
@@ -82,18 +85,20 @@
 }
 
 .ogw-modal-submit-button {
+  display: flex;
+  justify-content: center;
   width: 100%;
-  background: var(--primary-gradient);
   color: white;
   border: none;
   padding: 1rem;
-  border-radius: var(--border-radius);
   cursor: pointer;
   font-size: 1rem;
   font-weight: 600;
-  transition: all var(--transition-speed);
   position: relative;
   overflow: hidden;
+  background: var(--primary-gradient);
+  border-radius: var(--border-radius);
+  transition: all var(--transition-speed);
 }
 
 .ogw-modal-submit-button::before {
@@ -115,6 +120,35 @@
 .ogw-modal-submit-button:hover {
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.ogw-error-message {
+  padding: 0.75rem;
+  margin: 0.75rem 0;
+  font-size: 0.875rem;
+  color: var(--error-text);
+  line-height: 1.4;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  max-height: 200px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  background-color: var(--error-background);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--error-border);
+  transition: all var(--transition-speed);
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.1);
+}
+
+.ogw-error-link {
+  cursor: pointer;
+  color: inherit;
+  text-decoration: underline;
+}
+
+.ogw-error-link:hover {
+  opacity: 0.8;
 }
 
 /* Example Prompts Styles */
@@ -164,7 +198,6 @@ button#ogw-create-workout {
   display: inline-block;
   width: 16px;
   height: 16px;
-  margin-top: 3px;
   margin-left: 5px;
   border: 3px solid rgba(255,255,255,.3);
   border-radius: 50%;
