@@ -29,7 +29,7 @@
     "@crxjs/vite-plugin": "^2.0.0-beta.19",
     "@eslint/js": "^9.15.0",
     "eslint": "^9.14.0",
-    "eslint-plugin-jest": "^28.8.3",
+    "eslint-plugin-jest": "^28.9.0",
     "globals": "^15.11.0",
     "gulp": "^5.0.0",
     "gulp-zip": "^6.0.0",
