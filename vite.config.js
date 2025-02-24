@@ -5,6 +5,11 @@ import manifest from './src/manifest.js'
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   return {
+    server: {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+      },
+    },
     build: {
       emptyOutDir: true,
       outDir: 'build',
