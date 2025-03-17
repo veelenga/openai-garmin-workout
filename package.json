@@ -39,6 +39,6 @@
     "vite": "^6.2.1"
   },
   "dependencies": {
-    "openai": "^4.86.2"
+    "openai": "^4.87.3"
   }
 }
