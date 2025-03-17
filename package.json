@@ -36,7 +36,7 @@
     "jest": "^29.7.0",
     "nock": "^14.0.1",
     "prettier": "^3.5.3",
-    "vite": "^6.2.1"
+    "vite": "^6.2.2"
   },
   "dependencies": {
     "openai": "^4.86.2"
