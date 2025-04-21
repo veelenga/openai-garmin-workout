@@ -1,5 +1,9 @@
 ## Unreleased
 
+## 1.0.3
+
+* add support of distance targets
+* better error handling
 * minimize css
 
 ## 1.0.2
