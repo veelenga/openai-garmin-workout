@@ -31,6 +31,19 @@ export const targetTypeMapping = {
   pace: { workoutTargetTypeId: 6, workoutTargetTypeKey: 'pace.zone', displayOrder: 6 },
 }
 
+export const distanceUnitMapping = {
+  m: { unitId: 2, unitKey: 'm', factor: 1 },
+  km: { unitId: 3, unitKey: 'km', factor: 1000 },
+  mile: { unitId: 4, unitKey: 'mile', factor: 1609.344 },
+}
+
+export const endConditionTypeMapping = {
+  time: { conditionTypeId: 2, conditionTypeKey: 'time', displayOrder: 2, displayable: true },
+  distance: { conditionTypeId: 3, conditionTypeKey: 'distance', displayOrder: 3, displayable: true },
+  'lap.button': { conditionTypeId: 1, conditionTypeKey: 'lap.button', displayOrder: 1, displayable: true },
+  iterations: { conditionTypeId: 7, conditionTypeKey: 'iterations', displayOrder: 7, displayable: false },
+}
+
 /**
  * Main function to create the workout payload.
  * @param {Object} workout - The workout object containing workout details and steps.
@@ -129,24 +142,34 @@ function processStep(step, stepOrder) {
 function processRegularStep(step, stepOrder) {
   const stepType = stepTypeMapping[step.stepType.toLowerCase()] || stepTypeMapping['interval']
 
-  if (typeof step.stepDuration !== 'number' || step.stepDuration <= 0) {
-    throw new Error(`Invalid or missing stepDuration for step: ${step.stepName || 'Unnamed Step'}`)
-  }
-
   const workoutStep = {
     stepId: stepOrder,
     stepOrder: stepOrder,
     stepType: stepType,
     type: 'ExecutableStepDTO',
-    endCondition: {
-      conditionTypeId: 2,
-      conditionTypeKey: 'time',
-      displayOrder: 2,
-      displayable: true,
-    },
-    endConditionValue: step.stepDuration, // Duration in seconds
     description: step.stepDescription || '',
-    stepAudioNote: null,
+    stepAudioNote: null
+  }
+
+  // Process end condition (time or distance)
+  if (step.endConditionType === 'distance' && step.stepDistance && step.distanceUnit) {
+    const distanceUnit = distanceUnitMapping[step.distanceUnit.toLowerCase()]
+    if (!distanceUnit) {
+      throw new Error(`Unsupported distance unit: ${step.distanceUnit}`)
+    }
+
+    workoutStep.endCondition = endConditionTypeMapping.distance
+    workoutStep.endConditionValue = step.stepDistance * distanceUnit.factor  // Convert to meters
+    workoutStep.preferredEndConditionUnit = distanceUnit
+  } else {
+    // Default to time-based
+    if (typeof step.stepDuration !== 'number' || step.stepDuration <= 0) {
+      throw new Error(`Invalid or missing stepDuration for step: ${step.stepName || 'Unnamed Step'}`)
+    }
+
+    workoutStep.endCondition = endConditionTypeMapping.time
+    workoutStep.endConditionValue = step.stepDuration // Duration in seconds
+    workoutStep.preferredEndConditionUnit = null
   }
 
   if (step.target) {
@@ -488,4 +511,125 @@ export const workoutExamples = {
       },
     ],
   },
+
+  distanceBasedWorkout: {
+    name: "Distance-based Interval Workout",
+    type: "running",
+    steps: [
+      {
+        stepName: "Warm Up",
+        stepDescription: "Warm up with easy jogging",
+        endConditionType: "distance",
+        stepDistance: 1,
+        distanceUnit: "km",
+        stepType: "warmup",
+        target: {
+          type: "no target"
+        }
+      },
+      {
+        stepType: "repeat",
+        numberOfIterations: 5,
+        steps: [
+          {
+            stepName: "Fast 400m",
+            stepDescription: "Run fast for 400 meters",
+            endConditionType: "distance",
+            stepDistance: 400,
+            distanceUnit: "m",
+            stepType: "interval",
+            target: {
+              type: "pace",
+              value: [4, 4.5],
+              unit: "min_per_km"
+            }
+          },
+          {
+            stepName: "Recovery",
+            stepDescription: "Easy jog for recovery",
+            endConditionType: "distance",
+            stepDistance: 200,
+            distanceUnit: "m",
+            stepType: "recovery",
+            target: {
+              type: "heart rate",
+              value: [120, 130],
+              unit: "bpm"
+            }
+          }
+        ]
+      },
+      {
+        stepName: "Cool Down",
+        stepDescription: "Slow jog to cool down",
+        endConditionType: "distance",
+        stepDistance: 1,
+        distanceUnit: "km",
+        stepType: "cooldown",
+        target: {
+          type: "no target"
+        }
+      }
+    ]
+  },
+
+  mixedWorkout: {
+    name: "Mixed Time and Distance Workout",
+    type: "running",
+    steps: [
+      {
+        stepName: "Warm Up",
+        stepDescription: "Warm up with easy jogging",
+        endConditionType: "time",
+        stepDuration: 600,
+        stepType: "warmup",
+        target: {
+          type: "heart rate",
+          value: [120, 130],
+          unit: "bpm"
+        }
+      },
+      {
+        stepType: "repeat",
+        numberOfIterations: 3,
+        steps: [
+          {
+            stepName: "Mile Repeat",
+            stepDescription: "Run one mile at target pace",
+            endConditionType: "distance",
+            stepDistance: 1,
+            distanceUnit: "mile",
+            stepType: "interval",
+            target: {
+              type: "pace",
+              value: [4.5, 5],
+              unit: "min_per_km"
+            }
+          },
+          {
+            stepName: "Recovery",
+            stepDescription: "Recovery period",
+            endConditionType: "time",
+            stepDuration: 180,
+            stepType: "recovery",
+            target: {
+              type: "heart rate",
+              value: [120, 130],
+              unit: "bpm"
+            }
+          }
+        ]
+      },
+      {
+        stepName: "Cool Down",
+        stepDescription: "Slow jog to cool down",
+        endConditionType: "time",
+        stepDuration: 600,
+        stepType: "cooldown",
+        target: {
+          type: "no target"
+        }
+      }
+    ]
+  }
 }
