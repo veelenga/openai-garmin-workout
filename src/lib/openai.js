@@ -46,7 +46,10 @@ Requirements:
     {
       "stepName": "Step Name",
       "stepDescription": "Description",
-      "stepDuration": duration_in_seconds,
+      "endConditionType": "time" | "distance", // Either time or distance based
+      "stepDuration": duration_in_seconds, // Only used when endConditionType is "time"
+      "stepDistance": distance_value, // Only used when endConditionType is "distance"
+      "distanceUnit": "m" | "km" | "mile", // Only used when endConditionType is "distance"
       "stepType": "warmup" | "cooldown" | "interval" | "recovery" | "rest" | "repeat",
       "target": {
         "type": "no target" | "pace" | "heart rate" | "power" | "cadence" | "speed",
@@ -62,7 +65,9 @@ Requirements:
 Constraints:
 - Be creative on the workout name. It should be understandable and describe the workout. Avoid sport type in the name.
 - The "type" should be one of the supported sports.
-- "stepDuration" should be in seconds.
+- When using time-based steps, "stepDuration" should be in seconds.
+- When using distance-based steps, include "stepDistance" and "distanceUnit" instead of "stepDuration".
+- For distance-based steps, use "m" for meters, "km" for kilometers, and "mile" for miles.
 - For pace targets, convert times like "4:30 per km" to minutes per km as a decimal (e.g., 4.5).
 - Use "no target" if no specific target is given.
 - For repeats, include "numberOfIterations" and "steps".
