@@ -500,11 +500,6 @@ describe('makePayload Function', () => {
       displayable: true,
     })
     expect(warmupStep.endConditionValue).toBe(1000) // 1 km = 1000 meters
-    expect(warmupStep.preferredEndConditionUnit).toEqual({
-      unitId: 3,
-      unitKey: 'km',
-      factor: 1000,
-    })
     expect(warmupStep.targetType.workoutTargetTypeKey).toBe('heart.rate.zone')
 
     // Check the main interval with pace target
@@ -559,17 +554,14 @@ describe('makePayload Function', () => {
     // Check meters
     const warmupStep = payload.workoutSegments[0].workoutSteps[0]
     expect(warmupStep.endConditionValue).toBe(800) // 800 meters
-    expect(warmupStep.preferredEndConditionUnit.unitKey).toBe('m')
 
     // Check miles
     const intervalStep = payload.workoutSegments[0].workoutSteps[1]
     expect(intervalStep.endConditionValue).toBeCloseTo(1609.344) // 1 mile in meters
-    expect(intervalStep.preferredEndConditionUnit.unitKey).toBe('mile')
 
     // Check recovery
     const recoveryStep = payload.workoutSegments[0].workoutSteps[2]
     expect(recoveryStep.endConditionValue).toBe(400) // 400 meters
-    expect(recoveryStep.preferredEndConditionUnit.unitKey).toBe('m')
   })
 
   test('creates payload for a repeating distance-based workout', () => {
@@ -641,14 +633,12 @@ describe('makePayload Function', () => {
     const intervalStep = repeatStep.workoutSteps[0]
     expect(intervalStep.endCondition.conditionTypeKey).toBe('distance')
     expect(intervalStep.endConditionValue).toBe(400)
-    expect(intervalStep.preferredEndConditionUnit.unitKey).toBe('m')
     expect(intervalStep.targetType.workoutTargetTypeKey).toBe('pace.zone')
 
     // Check recovery step within repeat
     const recoveryStep = repeatStep.workoutSteps[1]
     expect(recoveryStep.endCondition.conditionTypeKey).toBe('distance')
     expect(recoveryStep.endConditionValue).toBe(200)
-    expect(recoveryStep.preferredEndConditionUnit.unitKey).toBe('m')
     expect(recoveryStep.targetType.workoutTargetTypeKey).toBe('heart.rate.zone')
   })
 
@@ -726,7 +716,6 @@ describe('makePayload Function', () => {
     const intervalStep = payload.workoutSegments[0].workoutSteps[1]
     expect(intervalStep.endCondition.conditionTypeKey).toBe('distance')
     expect(intervalStep.endConditionValue).toBe(3000) // 3 km = 3000 meters
-    expect(intervalStep.preferredEndConditionUnit.unitKey).toBe('km')
 
     // Check time-based recovery
     const recoveryStep = payload.workoutSegments[0].workoutSteps[2]
@@ -737,7 +726,6 @@ describe('makePayload Function', () => {
     const finishStep = payload.workoutSegments[0].workoutSteps[3]
     expect(finishStep.endCondition.conditionTypeKey).toBe('distance')
     expect(finishStep.endConditionValue).toBeCloseTo(1609.344) // 1 mile in meters
-    expect(finishStep.preferredEndConditionUnit.unitKey).toBe('mile')
   })
 
   test('handles invalid distance unit gracefully', () => {
@@ -758,4 +746,145 @@ describe('makePayload Function', () => {
 
     expect(() => makePayload(workout)).toThrow('Unsupported distance unit: invalid_unit')
   })
+
+  test('calculates duration for distance-based steps', () => {
+    const workout = {
+      name: 'Distance-based Duration Test',
+      type: 'running',
+      steps: [
+        {
+          stepName: 'Run 5km',
+          stepDescription: 'Run 5km at target pace',
+          endConditionType: 'distance',
+          stepDistance: 5,
+          distanceUnit: 'km',
+          stepType: 'interval',
+          target: {
+            type: 'pace',
+            value: [5, 5.5], // 5-5:30 min/km pace
+            unit: 'min_per_km',
+          },
+        },
+      ],
+    }
+
+    const payload = makePayload(workout)
+
+    // Expected duration: 5km at ~5:15 min/km = ~26:15 = ~1575 seconds
+    // Since pace is converted to m/s and back, we use approximate matching
+    expect(payload.estimatedDurationInSecs).toBeGreaterThan(1500)
+    expect(payload.estimatedDurationInSecs).toBeLessThan(1650)
+  });
+
+  test('calculates duration for mixed time and distance steps', () => {
+    const workout = {
+      name: 'Mixed Steps Duration Test',
+      type: 'running',
+      steps: [
+        {
+          stepName: 'Warm Up',
+          stepDescription: 'Warm up for 10 minutes',
+          endConditionType: 'time',
+          stepDuration: 600,
+          stepType: 'warmup',
+        },
+        {
+          stepName: 'Run 2km',
+          stepDescription: 'Run 2km at target pace',
+          endConditionType: 'distance',
+          stepDistance: 2,
+          distanceUnit: 'km',
+          stepType: 'interval',
+          target: {
+            type: 'pace',
+            value: [4, 4.5], // 4-4:30 min/km pace
+            unit: 'min_per_km',
+          },
+        },
+        {
+          stepName: 'Cool Down',
+          stepDescription: 'Cool down for 5 minutes',
+          endConditionType: 'time',
+          stepDuration: 300,
+          stepType: 'cooldown',
+        },
+      ],
+    }
+
+    const payload = makePayload(workout)
+
+    // Expected: 600s warmup + ~510s run (2km @ ~4:15 min/km) + 300s cooldown = ~1410s
+    expect(payload.estimatedDurationInSecs).toBeGreaterThan(1350)
+    expect(payload.estimatedDurationInSecs).toBeLessThan(1470)
+  });
+
+  test('calculates duration for distance steps with no pace target', () => {
+    const workout = {
+      name: 'No Target Distance Test',
+      type: 'running',
+      steps: [
+        {
+          stepName: 'Run 1 mile',
+          stepDescription: 'Run 1 mile',
+          endConditionType: 'distance',
+          stepDistance: 1,
+          distanceUnit: 'mile',
+          stepType: 'interval',
+          target: {
+            type: 'no target',
+          },
+        },
+      ],
+    }
+
+    const payload = makePayload(workout)
+    
+    // Expected: Using default running pace (0.36s/m) for 1609.344m = ~579.4s
+    // We're just checking that a reasonable estimate is made using default pace
+    expect(payload.estimatedDurationInSecs).toBeGreaterThan(550)
+    expect(payload.estimatedDurationInSecs).toBeLessThan(610)
+  });
+
+  test('calculates duration for repeat steps with distance-based children', () => {
+    const workout = {
+      name: 'Repeat Distance Test',
+      type: 'running',
+      steps: [
+        {
+          stepType: 'repeat',
+          numberOfIterations: 4,
+          steps: [
+            {
+              stepName: 'Run 400m',
+              stepDescription: 'Sprint 400 meters',
+              endConditionType: 'distance',
+              stepDistance: 400,
+              distanceUnit: 'm',
+              stepType: 'interval',
+              target: {
+                type: 'pace',
+                value: [4, 4], // 4:00 min/km = 1:36 per 400m
+                unit: 'min_per_km',
+              },
+            },
+            {
+              stepName: 'Rest',
+              stepDescription: 'Rest between intervals',
+              endConditionType: 'time',
+              stepDuration: 60,
+              stepType: 'rest',
+            },
+          ],
+        },
+      ],
+    }
+
+    const payload = makePayload(workout)
+
+    // Expected: 4 repeats × (400m @ 4:00min/km pace + 60s rest)
+    // 400m @ 4:00min/km = ~96s per interval
+    // Total: 4 × (96s + 60s) = 4 × 156s = 624s
+    expect(payload.estimatedDurationInSecs).toBeGreaterThan(600)
+    expect(payload.estimatedDurationInSecs).toBeLessThan(650)
+  });
 })

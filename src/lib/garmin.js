@@ -45,6 +45,19 @@ export const endConditionTypeMapping = {
 }
 
 /**
+ * Default pace values in seconds per meter for different sport types
+ * These are used when estimating duration for distance steps without pace targets
+ */
+const DEFAULT_PACE = {
+  running: 0.36,      // ~6:00 min/km or ~9:40 min/mile
+  cycling: 0.05,      // ~3:00 min/km or ~5:00 min/mile (12 mph)
+  swimming: 0.5,      // ~8:20 min/100m
+  walking: 0.3,       // ~5:00 min/km
+  strength: 0.36,     // Same as running
+  cardio: 0.36,       // Same as running
+}
+
+/**
  * Main function to create the workout payload.
  * @param {Object} workout - The workout object containing workout details and steps.
  * @returns {Object} - The formatted payload ready to be sent to Garmin.
@@ -120,14 +133,11 @@ function processSteps(stepsArray, stepOrder) {
  * @returns {Object} - An object containing the formatted step and updated stepOrder.
  */
 function processStep(step, stepOrder) {
-  if (!step.stepType) {
-    throw new Error(`Missing stepType for step: ${step.stepName || 'Unnamed Step'}`)
-  }
-
-  const stepTypeKey = step.stepType.toLowerCase()
-
-  if (stepTypeKey === 'repeat') {
+  // Handle both stepType and endConditionType for identifying repeat steps
+  if (step.numberOfIterations && step.steps && (step.stepType === 'repeat' || step.endConditionType === 'repeat')) {
     return processRepeatStep(step, stepOrder)
+  } else if (!step.stepType) {
+    throw new Error(`Missing stepType for step: ${step.stepName || 'Unnamed Step'}`)
   } else {
     return processRegularStep(step, stepOrder)
   }
@@ -160,7 +170,15 @@ function processRegularStep(step, stepOrder) {
 
     workoutStep.endCondition = endConditionTypeMapping.distance
     workoutStep.endConditionValue = step.stepDistance * distanceUnit.factor  // Convert to meters
-    workoutStep.preferredEndConditionUnit = distanceUnit
+
+    // When using km for distances >= 1000m, or miles for imperial, make sure
+    // the input value is preserved in the native unit rather than being converted
+    if (distanceUnit.unitKey === 'km' && workoutStep.endConditionValue >= 1000) {
+      workoutStep.endConditionValue = Math.round(workoutStep.endConditionValue);
+    } else if (distanceUnit.unitKey === 'mile') {
+      // For miles, preserve the exact conversion factor
+      workoutStep.endConditionValue = step.stepDistance * 1609.344;
+    }
   } else {
     // Default to time-based
     if (typeof step.stepDuration !== 'number' || step.stepDuration <= 0) {
@@ -169,13 +187,17 @@ function processRegularStep(step, stepOrder) {
 
     workoutStep.endCondition = endConditionTypeMapping.time
     workoutStep.endConditionValue = step.stepDuration // Duration in seconds
-    workoutStep.preferredEndConditionUnit = null
   }
 
   if (step.target) {
     processTarget(workoutStep, step)
   } else {
     workoutStep.targetType = targetTypeMapping['no target']
+  }
+
+  // Explicitly set targetValueUnit to null as seen in the valid payload
+  if (workoutStep.targetType && workoutStep.targetType.workoutTargetTypeKey !== 'no.target') {
+    workoutStep.targetValueUnit = null;
   }
 
   stepOrder += 1
@@ -305,17 +327,82 @@ function convertValueToUnit(value, unit) {
  * @returns {number} - The estimated duration of the workout in seconds.
  */
 function calculateEstimatedDuration(workoutSegments) {
-  let duration = 0
+  let duration = 0;
+  const sportType = workoutSegments[0]?.sportType?.sportTypeKey || 'running';
+
   workoutSegments.forEach((segment) => {
     segment.workoutSteps.forEach((step) => {
       if (step.type === 'ExecutableStepDTO') {
-        duration += step.endConditionValue
+        if (step.endCondition.conditionTypeKey === 'distance') {
+          // For distance-based steps, estimate duration based on pace
+          duration += estimateStepDuration(step, sportType);
+        } else {
+          // For time-based steps, use the step duration directly
+          duration += step.endConditionValue;
+        }
       } else if (step.type === 'RepeatGroupDTO') {
-        duration += step.numberOfIterations * calculateEstimatedDuration([step])
+        // Create a fake segment containing just the child steps of the repeat
+        const childStepsDuration = calculateStepsDuration(step.workoutSteps, sportType);
+        duration += step.numberOfIterations * childStepsDuration;
       }
-    })
-  })
-  return duration
+    });
+  });
+  return duration;
+}
+
+/**
+ * Calculates the duration for an array of steps.
+ * @param {Array} steps - The array of steps to calculate the duration for.
+ * @param {string} sportType - The sport type key (e.g., 'running').
+ * @returns {number} - The estimated duration in seconds.
+ */
+function calculateStepsDuration(steps, sportType) {
+  let duration = 0;
+
+  steps.forEach((step) => {
+    if (step.type === 'ExecutableStepDTO') {
+      if (step.endCondition.conditionTypeKey === 'distance') {
+        duration += estimateStepDuration(step, sportType);
+      } else {
+        duration += step.endConditionValue;
+      }
+    } else if (step.type === 'RepeatGroupDTO') {
+      const childStepsDuration = calculateStepsDuration(step.workoutSteps, sportType);
+      duration += step.numberOfIterations * childStepsDuration;
+    }
+  });
+
+  return duration;
+}
+
+/**
+ * Estimates the duration of a distance-based step.
+ * @param {Object} step - The step to estimate duration for.
+ * @param {string} sportType - The sport type key (e.g., 'running').
+ * @returns {number} - The estimated duration in seconds.
+ */
+function estimateStepDuration(step, sportType) {
+  const distance = step.endConditionValue; // distance in meters
+  let pacePerMeter;
+
+  // Check if the step has a pace target
+  if (step.targetType && step.targetType.workoutTargetTypeKey === 'pace.zone' && 
+      step.targetValueOne && step.targetValueTwo) {
+    // Use the average of min and max pace values
+    // targetValueOne and targetValueTwo are in m/s, so we convert to seconds per meter
+    pacePerMeter = 2 / (step.targetValueOne + step.targetValueTwo);
+  } else if (step.targetType && step.targetType.workoutTargetTypeKey === 'speed.zone' && 
+             step.targetValueOne && step.targetValueTwo) {
+    // If speed target, use the average speed in m/s
+    const avgSpeed = (step.targetValueOne + step.targetValueTwo) / 2;
+    pacePerMeter = 1 / avgSpeed;
+  } else {
+    // Use default pace value based on sport type
+    pacePerMeter = DEFAULT_PACE[sportType.toLowerCase()] || DEFAULT_PACE.running;
+  }
+
+  // Calculate estimated duration
+  return distance * pacePerMeter;
 }
 
 export function createWorkout(workout, callback) {
